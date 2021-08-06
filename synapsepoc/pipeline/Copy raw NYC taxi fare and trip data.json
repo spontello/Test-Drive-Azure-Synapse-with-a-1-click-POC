@@ -1,0 +1,157 @@
+{
+	"name": "Copy raw NYC taxi fare and trip data",
+	"properties": {
+		"activities": [
+			{
+				"name": "IngestTripDataIntoADLS",
+				"description": "Copies the trip data csv file from the git repo and loads it into the ADLS.",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:10:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "tripsDataSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "tripDataSink",
+						"type": "DatasetReference",
+						"parameters": {
+							"datalakeAccountName": {
+								"value": "@pipeline().parameters.datalakeAccountName",
+								"type": "Expression"
+							},
+							"keyVaultName": {
+								"value": "@pipeline().parameters.KeyVaultName",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "IngestTripFaresDataIntoADLS",
+				"description": "Copies the trip fare data csv file from the git repo and loads it into the ADLS.",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:10:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "faresDataSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "faresDataSink",
+						"type": "DatasetReference",
+						"parameters": {
+							"keyVaultName": {
+								"value": "@pipeline().parameters.KeyVaultName",
+								"type": "Expression"
+							},
+							"datalakeAccountName": {
+								"value": "@pipeline().parameters.datalakeAccountName",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"KeyVaultName": {
+				"type": "string",
+				"defaultValue": "kvspoexxbkqfmujmvmpoc"
+			},
+			"datalakeAccountName": {
+				"type": "string",
+				"defaultValue": "spoexxbkqfmujmvmpoc"
+			}
+		},
+		"folder": {
+			"name": "Delta Lake Workshop"
+		},
+		"annotations": []
+	}
+}
