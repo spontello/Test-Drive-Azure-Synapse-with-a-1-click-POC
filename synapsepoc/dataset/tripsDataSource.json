@@ -3,10 +3,7 @@
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "HttpServerTripDataLinkedService",
-			"type": "LinkedServiceReference",
-			"parameters": {
-				"baseURL": "https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2017-01.csv"
-			}
+			"type": "LinkedServiceReference"
 		},
 		"parameters": {
 			"baseURL": {
