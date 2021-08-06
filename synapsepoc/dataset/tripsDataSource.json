@@ -5,12 +5,6 @@
 			"referenceName": "HttpServerTripDataLinkedService",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"baseURL": {
-				"type": "string",
-				"defaultValue": "https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2017-01.csv"
-			}
-		},
 		"folder": {
 			"name": "TripFareDatasets"
 		},
@@ -18,11 +12,7 @@
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
-				"type": "HttpServerLocation",
-				"relativeUrl": {
-					"value": "@dataset().baseURL",
-					"type": "Expression"
-				}
+				"type": "HttpServerLocation"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
