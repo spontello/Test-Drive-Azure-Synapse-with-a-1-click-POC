@@ -128,7 +128,9 @@
 							"fileName": "nyc-tlc-raw-test.csv"
 						}
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems"
+					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
 						"enablePartitionDiscovery": false
