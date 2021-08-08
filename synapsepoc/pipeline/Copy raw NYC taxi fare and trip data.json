@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('metadata').output.values",
+						"value": "@activity('metadata').output.value",
 						"type": "Expression"
 					},
 					"activities": [
