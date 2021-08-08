@@ -14,14 +14,22 @@
 		"parameters": {
 			"baseURL": {
 				"type": "string",
-				"defaultValue": "https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2020-01.csv"
+				"defaultValue": "https://s3.amazonaws.com/nyc-tlc/trip+data/"
+			},
+			"fileName": {
+				"type": "string",
+				"defaultValue": "yellow_tripdata_2020-01.csv"
 			}
 		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
-				"type": "HttpServerLocation"
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@dataset().fileName",
+					"type": "Expression"
+				}
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
