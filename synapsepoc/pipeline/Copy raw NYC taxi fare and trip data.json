@@ -19,6 +19,7 @@
 						"value": "@activity('metadata').output.value",
 						"type": "Expression"
 					},
+					"batchCount": 4,
 					"activities": [
 						{
 							"name": "Copy nyc taxi data to data lake",
