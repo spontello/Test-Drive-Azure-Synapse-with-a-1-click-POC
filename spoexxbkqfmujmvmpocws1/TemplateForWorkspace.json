@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'TripFaresSynapseAnalyticsLinkedService'"
 		},
+		"ls_default_datalake_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_default_datalake'"
+		},
 		"HttpServerTripDataLinkedService_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://raw.githubusercontent.com/Azure/Test-Drive-Azure-Synapse-with-a-1-click-POC/main/tripDataAndFaresCSV/trip-data.csv"
@@ -34,6 +38,10 @@
 		"ls_http_server_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "@{linkedService().baseURL}"
+		},
+		"ls_default_datalake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://spoexxbkqfmujmvmpoc.dfs.core.windows.net"
 		}
 	},
 	"variables": {
@@ -47,59 +55,11 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Get Metadata1",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ds_csv_source_param",
-								"type": "DatasetReference",
-								"parameters": {
-									"keyVaultName": {
-										"value": "@pipeline().parameters.KeyVaultName",
-										"type": "Expression"
-									},
-									"datalakeAccountName": {
-										"value": "@pipeline().parameters.datalakeAccountName",
-										"type": "Expression"
-									},
-									"filePath": {
-										"value": "@pipeline().parameters.metadataFilePath",
-										"type": "Expression"
-									},
-									"fileName": {
-										"value": "@pipeline().parameters.metadataFileName",
-										"type": "Expression"
-									}
-								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
-						}
-					},
-					{
 						"name": "ForEach1",
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "Get Metadata1",
+								"activity": "metadata",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -108,7 +68,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Get Metadata1').output.childitems",
+								"value": "@activity('metadata').output.value",
 								"type": "Expression"
 							},
 							"activities": [
@@ -195,6 +155,54 @@
 									]
 								}
 							]
+						}
+					},
+					{
+						"name": "metadata",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_csv_source_param",
+								"type": "DatasetReference",
+								"parameters": {
+									"filePath": {
+										"value": "@pipeline().parameters.metadataFilePath",
+										"type": "Expression"
+									},
+									"fileName": {
+										"value": "@pipeline().parameters.metadataFileName",
+										"type": "Expression"
+									},
+									"KeyVaultName": {
+										"value": "@pipeline().parameters.KeyVaultName",
+										"type": "Expression"
+									},
+									"datalakeAccountName": {
+										"value": "@pipeline().parameters.datalakeAccountName",
+										"type": "Expression"
+									}
+								}
+							}
 						}
 					}
 				],
@@ -794,7 +802,7 @@
 					"type": "LinkedServiceReference",
 					"parameters": {
 						"keyVaultName": {
-							"value": "@dataset().keyVaultName",
+							"value": "@dataset().KeyVaultName",
 							"type": "Expression"
 						},
 						"datalakeAccountName": {
@@ -804,14 +812,6 @@
 					}
 				},
 				"parameters": {
-					"keyVaultName": {
-						"type": "string",
-						"defaultValue": "kvspoexxbkqfmujmvmpoc"
-					},
-					"datalakeAccountName": {
-						"type": "string",
-						"defaultValue": "spoexxbkqfmujmvmpoc"
-					},
 					"filePath": {
 						"type": "string",
 						"defaultValue": "raw/metadata"
@@ -819,6 +819,14 @@
 					"fileName": {
 						"type": "string",
 						"defaultValue": "nyc-tlc-raw.csv"
+					},
+					"KeyVaultName": {
+						"type": "string",
+						"defaultValue": "kvspoexxbkqfmujmvmpoc"
+					},
+					"datalakeAccountName": {
+						"type": "string",
+						"defaultValue": "spoexxbkqfmujmvmpoc"
 					}
 				},
 				"folder": {
@@ -1818,6 +1826,29 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ls_default_datalake')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_default_datalake_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_default_datalake_accountKey')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
 		}
 	]
 }

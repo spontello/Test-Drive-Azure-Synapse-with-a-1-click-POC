@@ -8,6 +8,9 @@
 		"TripFaresSynapseAnalyticsLinkedService_connectionString": {
 			"value": ""
 		},
+		"ls_default_datalake_accountKey": {
+			"value": ""
+		},
 		"HttpServerTripDataLinkedService_properties_typeProperties_url": {
 			"value": "https://raw.githubusercontent.com/Azure/Test-Drive-Azure-Synapse-with-a-1-click-POC/main/tripDataAndFaresCSV/trip-data.csv"
 		},
@@ -25,6 +28,9 @@
 		},
 		"ls_http_server_properties_typeProperties_url": {
 			"value": "@{linkedService().baseURL}"
+		},
+		"ls_default_datalake_properties_typeProperties_url": {
+			"value": "https://spoexxbkqfmujmvmpoc.dfs.core.windows.net"
 		}
 	}
 }
