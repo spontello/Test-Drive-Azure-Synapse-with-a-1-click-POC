@@ -6,7 +6,7 @@
 			"type": "LinkedServiceReference",
 			"parameters": {
 				"baseURL": {
-					"value": "@concat(dataset().baseURL,dataset().fileName)",
+					"value": "@dataset().baseURL",
 					"type": "Expression"
 				}
 			}
@@ -25,7 +25,11 @@
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
-				"type": "HttpServerLocation"
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@dataset().fileName",
+					"type": "Expression"
+				}
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
