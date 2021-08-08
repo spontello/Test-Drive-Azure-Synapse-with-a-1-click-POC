@@ -2,28 +2,10 @@
 	"name": "ds_csv_source_param",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ls_datalake",
-			"type": "LinkedServiceReference",
-			"parameters": {
-				"keyVaultName": {
-					"value": "@dataset().keyVaultName",
-					"type": "Expression"
-				},
-				"datalakeAccountName": {
-					"value": "@dataset().datalakeAccountName",
-					"type": "Expression"
-				}
-			}
+			"referenceName": "ls_default_datalake",
+			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"keyVaultName": {
-				"type": "string",
-				"defaultValue": "kvspoexxbkqfmujmvmpoc"
-			},
-			"datalakeAccountName": {
-				"type": "string",
-				"defaultValue": "spoexxbkqfmujmvmpoc"
-			},
 			"filePath": {
 				"type": "string",
 				"defaultValue": "raw/metadata"
