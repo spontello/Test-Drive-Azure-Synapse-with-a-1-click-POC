@@ -19,6 +19,12 @@
 		},
 		"keyVaultLinkedservice_properties_typeProperties_baseUrl": {
 			"value": "@{concat('https://',linkedService().keyVaultName,'.vault.azure.net/')}"
+		},
+		"ls_datalake_properties_typeProperties_url": {
+			"value": "@{concat('https://',linkedService().datalakeAccountName,'.dfs.core.windows.net')}"
+		},
+		"ls_http_server_properties_typeProperties_url": {
+			"value": "@{linkedService().baseURL}"
 		}
 	}
 }
