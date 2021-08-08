@@ -97,7 +97,10 @@
 											"value": "@item().sinkFilePath",
 											"type": "Expression"
 										},
-										"fileName": "nyc-tlc-raw.csv"
+										"fileName": {
+											"value": "@item().sourceFileName",
+											"type": "Expression"
+										}
 									}
 								}
 							]
