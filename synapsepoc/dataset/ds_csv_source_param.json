@@ -2,8 +2,18 @@
 	"name": "ds_csv_source_param",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ls_default_datalake",
-			"type": "LinkedServiceReference"
+			"referenceName": "ls_datalake",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"keyVaultName": {
+					"value": "@dataset().KeyVaultName",
+					"type": "Expression"
+				},
+				"datalakeAccountName": {
+					"value": "@dataset().datalakeAccountName",
+					"type": "Expression"
+				}
+			}
 		},
 		"parameters": {
 			"filePath": {
@@ -13,6 +23,14 @@
 			"fileName": {
 				"type": "string",
 				"defaultValue": "nyc-tlc-raw.csv"
+			},
+			"KeyVaultName": {
+				"type": "string",
+				"defaultValue": "kvspoexxbkqfmujmvmpoc"
+			},
+			"datalakeAccountName": {
+				"type": "string",
+				"defaultValue": "spoexxbkqfmujmvmpoc"
 			}
 		},
 		"folder": {
