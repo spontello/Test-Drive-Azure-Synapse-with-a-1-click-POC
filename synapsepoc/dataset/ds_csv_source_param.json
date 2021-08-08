@@ -2,7 +2,7 @@
 	"name": "ds_csv_source_param",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "TripFaresDataLakeStorageLinkedService",
+			"referenceName": "ls_datalake",
 			"type": "LinkedServiceReference",
 			"parameters": {
 				"keyVaultName": {
@@ -18,11 +18,19 @@
 		"parameters": {
 			"keyVaultName": {
 				"type": "string",
-				"defaultValue": "kvmsft"
+				"defaultValue": "kvspoexxbkqfmujmvmpoc"
 			},
 			"datalakeAccountName": {
 				"type": "string",
-				"defaultValue": "adlsmsft"
+				"defaultValue": "spoexxbkqfmujmvmpoc"
+			},
+			"filePath": {
+				"type": "string",
+				"defaultValue": "raw/metadata"
+			},
+			"fileName": {
+				"type": "string",
+				"defaultValue": "nyc-tlc-raw.csv"
 			}
 		},
 		"folder": {
@@ -33,8 +41,14 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "fares-data.csv",
-				"fileSystem": "public"
+				"fileName": {
+					"value": "@dataset().fileName",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().filePath",
+					"type": "Expression"
+				}
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
