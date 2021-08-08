@@ -175,6 +175,10 @@
 										"baseURL": {
 											"value": "@item().sourceBaseURL",
 											"type": "Expression"
+										},
+										"fileName": {
+											"value": "@item().sourceFileName",
+											"type": "Expression"
 										}
 									}
 								}
@@ -213,6 +217,14 @@
 			"datalakeAccountName": {
 				"type": "string",
 				"defaultValue": "spoexxbkqfmujmvmpoc"
+			},
+			"metadataFilePath": {
+				"type": "string",
+				"defaultValue": "raw/metadata"
+			},
+			"metadataFileName": {
+				"type": "string",
+				"defaultValue": "nyc-tlc-raw-test.csv"
 			}
 		},
 		"folder": {
