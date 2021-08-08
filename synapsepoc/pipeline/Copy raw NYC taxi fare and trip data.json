@@ -5,14 +5,7 @@
 			{
 				"name": "ForEach1",
 				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "Get Metadata1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
@@ -106,8 +99,8 @@
 				}
 			},
 			{
-				"name": "Get Metadata1",
-				"type": "GetMetadata",
+				"name": "metadata",
+				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
@@ -118,25 +111,38 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
 					"dataset": {
 						"referenceName": "ds_csv_source_param",
 						"type": "DatasetReference",
 						"parameters": {
-							"keyVaultName": "kvspoexxbkqfmujmvmpoc",
-							"datalakeAccountName": "spoexxbkqfmujmvmpoc",
-							"filePath": "raw/metadata",
-							"fileName": "nyc-tlc-raw-test.csv"
+							"filePath": {
+								"value": "@pipeline().parameters.metadataFilePath",
+								"type": "Expression"
+							},
+							"fileName": {
+								"value": "@pipeline().parameters.metadataFileName",
+								"type": "Expression"
+							},
+							"KeyVaultName": {
+								"value": "@pipeline().parameters.KeyVaultName",
+								"type": "Expression"
+							},
+							"datalakeAccountName": {
+								"value": "@pipeline().parameters.datalakeAccountName",
+								"type": "Expression"
+							}
 						}
-					},
-					"fieldList": [
-						"childItems"
-					],
-					"storeSettings": {
-						"type": "AzureBlobFSReadSettings",
-						"enablePartitionDiscovery": false
-					},
-					"formatSettings": {
-						"type": "DelimitedTextReadSettings"
 					}
 				}
 			}
