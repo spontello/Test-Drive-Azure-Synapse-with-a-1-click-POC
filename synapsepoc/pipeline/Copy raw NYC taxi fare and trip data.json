@@ -96,10 +96,6 @@
 										"filePath": {
 											"value": "@item().sinkFilePath",
 											"type": "Expression"
-										},
-										"fileName": {
-											"value": "@item().sourceFileName",
-											"type": "Expression"
 										}
 									}
 								}
