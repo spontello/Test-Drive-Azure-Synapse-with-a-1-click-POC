@@ -173,7 +173,7 @@
 			},
 			"metadataFileName": {
 				"type": "string",
-				"defaultValue": "nyc-tlc-raw-test.csv"
+				"defaultValue": "nyc-tlc-raw.csv"
 			}
 		},
 		"folder": {
