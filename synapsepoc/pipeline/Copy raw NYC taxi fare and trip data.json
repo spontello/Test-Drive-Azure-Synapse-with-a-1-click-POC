@@ -19,10 +19,22 @@
 						"referenceName": "ds_csv_source_param",
 						"type": "DatasetReference",
 						"parameters": {
-							"keyVaultName": "kvspoexxbkqfmujmvmpoc",
-							"datalakeAccountName": "spoexxbkqfmujmvmpoc",
-							"filePath": "raw/metadata",
-							"fileName": "nyc-tlc-raw-test.csv"
+							"keyVaultName": {
+								"value": "@pipeline().parameters.KeyVaultName",
+								"type": "Expression"
+							},
+							"datalakeAccountName": {
+								"value": "@pipeline().parameters.datalakeAccountName",
+								"type": "Expression"
+							},
+							"filePath": {
+								"value": "@pipeline().parameters.metadataFilePath",
+								"type": "Expression"
+							},
+							"fileName": {
+								"value": "@pipeline().parameters.metadataFileName",
+								"type": "Expression"
+							}
 						}
 					},
 					"fieldList": [
