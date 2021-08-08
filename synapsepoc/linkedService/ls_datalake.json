@@ -1,0 +1,38 @@
+{
+	"name": "ls_datalake",
+	"properties": {
+		"parameters": {
+			"keyVaultName": {
+				"type": "string",
+				"defaultValue": "kvspoexxbkqfmujmvmpoc"
+			},
+			"datalakeAccountName": {
+				"type": "string",
+				"defaultValue": "spoexxbkqfmujmvmpoc"
+			}
+		},
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "@{concat('https://',linkedService().datalakeAccountName,'.dfs.core.windows.net')}",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "keyVaultLinkedservice",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"keyVaultName": {
+							"value": "@linkedService().keyVaultName",
+							"type": "Expression"
+						}
+					}
+				},
+				"secretName": "adlsAccessKey"
+			}
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
