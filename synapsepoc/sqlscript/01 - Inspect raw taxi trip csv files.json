@@ -5,7 +5,7 @@
 			"name": "Dive into Delta Lake"
 		},
 		"content": {
-			"query": "/* inspect raw taxi trip data */\nSELECT\n    VendorID\n    ,tpep_pickup_datetime\n    ,tpep_dropoff_datetime\n    ,passenger_count\n    ,trip_distance\n    ,RatecodeID\n    ,store_and_fwd_flag\n    ,PULocationID\n    ,DOLocationID\n    ,payment_type\n    ,fare_aount\n    ,extra\n    ,mta_tax\n    ,tip_amount\n    ,tolls_amount\n    ,improvement_surcharge\n    ,total_amount\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/yellow_tripdata_2017-01.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = true\n    ) AS [result]",
+			"query": "/* inspect raw taxi trip data */\nSELECT\n    VendorID\n    ,tpep_pickup_datetime\n    ,tpep_dropoff_datetime\n    ,passenger_count\n    ,trip_distance\n    ,RatecodeID\n    ,store_and_fwd_flag\n    ,PULocationID\n    ,DOLocationID\n    ,payment_type\n    ,fare_amount\n    ,extra\n    ,mta_tax\n    ,tip_amount\n    ,tolls_amount\n    ,improvement_surcharge\n    ,total_amount\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/yellow_tripdata_2017-01.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = true\n    ) AS [result]",
 			"metadata": {
 				"language": "sql"
 			},
