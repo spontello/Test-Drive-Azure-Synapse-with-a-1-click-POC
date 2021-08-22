@@ -1,0 +1,20 @@
+{
+	"name": "00 - Inspect raw taxi trip csv files",
+	"properties": {
+		"folder": {
+			"name": "Dive into Delta Lake"
+		},
+		"content": {
+			"query": "/* inspect raw taxi trip data */\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/yellow_tripdata_2017-01.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = true\n    ) AS [result]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
