@@ -1,5 +1,5 @@
 {
-	"name": "00 - Inspect raw taxi trip csv files",
+	"name": "01 - Inspect raw taxi trip csv files",
 	"properties": {
 		"folder": {
 			"name": "Dive into Delta Lake"

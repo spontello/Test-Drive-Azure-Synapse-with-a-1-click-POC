@@ -1,6 +1,9 @@
 {
-	"name": "Set Database Collation",
+	"name": "00 - Set Database Collation",
 	"properties": {
+		"folder": {
+			"name": "Dive into Delta Lake"
+		},
 		"content": {
 			"query": "ALTER DATABASE [nyc-taxi] COLLATE Latin1_General_100_BIN2_UTF8;",
 			"metadata": {
