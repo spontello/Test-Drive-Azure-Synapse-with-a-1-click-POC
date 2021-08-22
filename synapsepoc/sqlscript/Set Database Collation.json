@@ -2,7 +2,7 @@
 	"name": "Set Database Collation",
 	"properties": {
 		"content": {
-			"query": "ALTER DATABASE nyc-taxi COLLATE Latin1_General_100_BIN2_UTF8;",
+			"query": "ALTER DATABASE [nyc-taxi] COLLATE Latin1_General_100_BIN2_UTF8;",
 			"metadata": {
 				"language": "sql"
 			},
