@@ -82,7 +82,7 @@
 				"source": [
 					"print(\"spark version: \",spark.version)"
 				],
-				"execution_count": 1
+				"execution_count": 80
 			},
 			{
 				"cell_type": "code",
@@ -101,7 +101,7 @@
 				"source": [
 					"from pyspark.sql.functions import *"
 				],
-				"execution_count": 20
+				"execution_count": 81
 			},
 			{
 				"cell_type": "code",
@@ -129,7 +129,7 @@
 					"taxi_zone_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_zone\"\r\n",
 					"taxi_trip_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_trip\""
 				],
-				"execution_count": 23
+				"execution_count": 82
 			},
 			{
 				"cell_type": "code",
@@ -148,7 +148,7 @@
 				"source": [
 					"spark.sql(\"CREATE DATABASE IF NOT EXISTS delta_lake_house\")"
 				],
-				"execution_count": 7
+				"execution_count": 83
 			},
 			{
 				"cell_type": "code",
@@ -171,7 +171,7 @@
 					"%%sql\r\n",
 					"DROP TABLE IF EXISTS delta_lake_house.stage_taxi_zone"
 				],
-				"execution_count": 30
+				"execution_count": 84
 			},
 			{
 				"cell_type": "code",
@@ -196,7 +196,7 @@
 					"\r\n",
 					"taxi_zone_df.write.mode(\"overwrite\").saveAsTable(\"delta_lake_house.stage_taxi_zone\")"
 				],
-				"execution_count": 31
+				"execution_count": 85
 			},
 			{
 				"cell_type": "code",
@@ -219,7 +219,7 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.stage_taxi_zone"
 				],
-				"execution_count": 32
+				"execution_count": 86
 			},
 			{
 				"cell_type": "code",
@@ -242,7 +242,7 @@
 					"%%sql\r\n",
 					"SELECT * FROM delta_lake_house.stage_taxi_zone LIMIT 5"
 				],
-				"execution_count": 50
+				"execution_count": 87
 			},
 			{
 				"cell_type": "code",
@@ -361,7 +361,7 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.stage_taxi_trip_2017"
 				],
-				"execution_count": 37
+				"execution_count": 88
 			},
 			{
 				"cell_type": "code",
@@ -384,7 +384,7 @@
 					"%%sql\r\n",
 					"DROP TABLE IF EXISTS delta_lake_house.taxi_trip"
 				],
-				"execution_count": 64
+				"execution_count": 93
 			},
 			{
 				"cell_type": "code",
@@ -428,10 +428,10 @@
 					",CAST(tolls_amount AS decimal(5,2)) AS tolls_amount\r\n",
 					",CAST(improvement_surcharge AS decimal(5,2)) AS improvement_surcharge\r\n",
 					",CAST(total_amount AS decimal(7,2)) AS total_amount\r\n",
-					",CAST(SUBSTR(tpep_pickup_datetime,1,7) AS int) AS YYYYMM\r\n",
+					",SUBSTR(tpep_pickup_datetime,1,7) AS YYYYMM\r\n",
 					"FROM delta_lake_house.stage_taxi_trip_2017"
 				],
-				"execution_count": 65
+				"execution_count": 94
 			},
 			{
 				"cell_type": "code",
