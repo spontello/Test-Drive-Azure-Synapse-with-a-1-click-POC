@@ -593,7 +593,7 @@
 					"microsoft": {
 						"language": "sparksql"
 					},
-					"collapsed": true
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -603,7 +603,7 @@
 					"WHEN MATCHED THEN\r\n",
 					"  UPDATE SET delta_lake_house.taxi_trip.ZoneKey = delta_lake_house.taxi_zone.ZoneKey"
 				],
-				"execution_count": 77
+				"execution_count": 78
 			},
 			{
 				"cell_type": "code",
@@ -617,12 +617,16 @@
 							"deleting": false
 						}
 					},
-					"collapsed": true
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
 				},
 				"source": [
-					""
+					"%%sql\r\n",
+					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
 				],
-				"execution_count": null
+				"execution_count": 79
 			}
 		]
 	}
