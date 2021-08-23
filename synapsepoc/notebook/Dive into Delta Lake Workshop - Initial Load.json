@@ -597,12 +597,10 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"UPDATE TABLE taxi_trip\r\n",
-					"SET ZoneKey = tz.ZoneKey\r\n",
-					"WHERE ZoneKey = \r\n",
-					"(SELECT ZoneKey FROM delta_lake_house.taxi_zone tz WHERE DOLocationID = tz.DOLocationID)"
+					"UPDATE TABLE taxi_trip \r\n",
+					"SET tt.ZoneKey = (SELECT tz.ZoneKey FROM delta_lake_house.taxi_zone tz WHERE DOLocationID = tz.LocationID)"
 				],
-				"execution_count": 68
+				"execution_count": 74
 			},
 			{
 				"cell_type": "code",
