@@ -498,7 +498,33 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"SELECT\r\n",
+					"DROP TABLE IF EXISTS delta_lake_house.taxi_zone"
+				],
+				"execution_count": 54
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE TABLE delta_lake_house.taxi_zone\r\n",
+					"USING delta\r\n",
+					"LOCATION \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_zone\"\r\n",
+					"AS SELECT\r\n",
 					"row_number() OVER(ORDER BY CAST(tz.LocationID AS int)) as ZoneKey\r\n",
 					",CAST(tz.LocationID AS int) AS LocationID\r\n",
 					",CAST(tz.Borough AS varchar(64)) AS Borough\r\n",
@@ -527,7 +553,30 @@
 					"ORDER BY \r\n",
 					"CAST(tz.LocationID AS int)"
 				],
-				"execution_count": 53
+				"execution_count": 55
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SELECT * FROM delta_lake_house.taxi_zone LIMIT 5"
+				],
+				"execution_count": 59
 			},
 			{
 				"cell_type": "code",
