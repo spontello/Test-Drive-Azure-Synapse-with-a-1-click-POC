@@ -454,7 +454,7 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.taxi_trip"
 				],
-				"execution_count": 66
+				"execution_count": 95
 			},
 			{
 				"cell_type": "code",
@@ -477,7 +477,7 @@
 					"%%sql\r\n",
 					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
 				],
-				"execution_count": 67
+				"execution_count": 96
 			},
 			{
 				"cell_type": "code",
@@ -576,7 +576,7 @@
 					"%%sql\r\n",
 					"SELECT * FROM delta_lake_house.taxi_zone LIMIT 5"
 				],
-				"execution_count": 59
+				"execution_count": 97
 			},
 			{
 				"cell_type": "code",
@@ -603,7 +603,7 @@
 					"WHEN MATCHED THEN\r\n",
 					"  UPDATE SET delta_lake_house.taxi_trip.ZoneKey = delta_lake_house.taxi_zone.ZoneKey"
 				],
-				"execution_count": 78
+				"execution_count": 99
 			},
 			{
 				"cell_type": "code",
@@ -626,7 +626,7 @@
 					"%%sql\r\n",
 					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
 				],
-				"execution_count": 79
+				"execution_count": 100
 			}
 		]
 	}
