@@ -384,7 +384,7 @@
 					"%%sql\r\n",
 					"DROP TABLE IF EXISTS delta_lake_house.taxi_trip"
 				],
-				"execution_count": 44
+				"execution_count": 64
 			},
 			{
 				"cell_type": "code",
@@ -431,7 +431,7 @@
 					",SUBSTR(tpep_pickup_datetime,1,7) AS YYYYMM\r\n",
 					"FROM delta_lake_house.stage_taxi_trip_2017"
 				],
-				"execution_count": 45
+				"execution_count": 65
 			},
 			{
 				"cell_type": "code",
@@ -454,7 +454,7 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.taxi_trip"
 				],
-				"execution_count": 46
+				"execution_count": 60
 			},
 			{
 				"cell_type": "code",
@@ -477,7 +477,7 @@
 					"%%sql\r\n",
 					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
 				],
-				"execution_count": 47
+				"execution_count": 61
 			},
 			{
 				"cell_type": "code",
@@ -590,10 +590,15 @@
 							"deleting": false
 						}
 					},
+					"microsoft": {
+						"language": "sparksql"
+					},
 					"collapsed": true
 				},
 				"source": [
-					""
+					"%%sql\r\n",
+					"UPDATE TABLE delta_lake_house.taxi_trip\r\n",
+					"SET "
 				],
 				"execution_count": null
 			}
