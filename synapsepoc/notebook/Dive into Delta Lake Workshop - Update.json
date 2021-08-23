@@ -188,7 +188,7 @@
 					",CAST(tolls_amount AS decimal(5,2)) AS tolls_amount\r\n",
 					",CAST(improvement_surcharge AS decimal(5,2)) AS improvement_surcharge\r\n",
 					",CAST(total_amount AS decimal(7,2)) AS total_amount\r\n",
-					",CAST(SUBSTR(tpep_pickup_datetime,1,7) AS int) AS YYYYMM\r\n",
+					",SUBSTR(tpep_pickup_datetime,1,7) AS YYYYMM\r\n",
 					"FROM delta_lake_house.stage_taxi_trip_2018"
 				],
 				"execution_count": 65
@@ -397,7 +397,7 @@
 					"FROM \r\n",
 					"delta_lake_house.taxi_trip \r\n",
 					"WHERE \r\n",
-					"DOLocationID = 1 AND YYYYMM IN (201701, 201801) \r\n",
+					"DOLocationID = 1 AND YYYYMM IN ('201701', '201801') \r\n",
 					"GROUP BY\r\n",
 					"ZoneKey\r\n",
 					",DOLocationID\r\n",
