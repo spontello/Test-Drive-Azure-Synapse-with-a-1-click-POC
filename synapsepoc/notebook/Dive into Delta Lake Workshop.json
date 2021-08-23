@@ -99,13 +99,35 @@
 					"collapsed": true
 				},
 				"source": [
+					"from pyspark.sql.functions import *"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
 					"taxi_zone_raw = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/lookup-data/taxi_zone_lookup.csv\"\r\n",
-					"taxi_trip_raw = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow\"\r\n",
+					"taxi_trip_raw_2017 = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow/*_2017-*.csv\"\r\n",
+					"taxi_trip_raw_2018 = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow/*_2018-*.csv\"\r\n",
+					"taxi_trip_raw_2019 = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow/*_2019-*.csv\"\r\n",
+					"taxi_trip_raw_2020 = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow/*_2020-*.csv\"\r\n",
 					"\r\n",
 					"taxi_zone_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_zone\"\r\n",
 					"taxi_trip_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_trip\""
 				],
-				"execution_count": 10
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -149,7 +171,7 @@
 					"\r\n",
 					"taxi_zone_df.write.mode(\"overwrite\").saveAsTable(\"delta_lake_house.stage_taxi_zone\")"
 				],
-				"execution_count": 12
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -172,7 +194,55 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.stage_taxi_zone"
 				],
-				"execution_count": 13
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"taxi_trip_df = (\r\n",
+					"    spark.read\r\n",
+					"    .option(\"header\",\"true\")\r\n",
+					"    .csv(taxi_trip_raw_2017)\r\n",
+					")\r\n",
+					"\r\n",
+					"taxi_trip_df.write.format(\"parquet\").mode(\"overwrite\").saveAsTable(\"delta_lake_house.stage_taxi_trip_2017\")"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DESCRIBE delta_lake_house.stage_taxi_trip_2017"
+				],
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
