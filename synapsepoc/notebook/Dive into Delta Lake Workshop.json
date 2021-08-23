@@ -352,7 +352,7 @@
 					",CAST(tolls_amount AS decimal(5,2)) AS tolls_amount\r\n",
 					",CAST(improvement_surcharge AS decimal(5,2)) AS improvement_surcharge\r\n",
 					",CAST(total_amount AS decimal(7,2)) AS total_amount\r\n",
-					",SUBSTR(1,7) AS YYYYMM"
+					",SUBSTR(tpep_pickup_datetime,1,7) AS YYYYMM"
 				],
 				"execution_count": 40
 			},
