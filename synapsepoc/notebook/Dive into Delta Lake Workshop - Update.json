@@ -397,14 +397,14 @@
 					"FROM \r\n",
 					"delta_lake_house.taxi_trip \r\n",
 					"WHERE \r\n",
-					"DOLocationID = 1 AND YYYYMM IN ('201701', '201801') \r\n",
+					"DOLocationID = 1 AND YYYYMM IN ('2017-01', '2018-01') \r\n",
 					"GROUP BY\r\n",
 					"ZoneKey\r\n",
 					",DOLocationID\r\n",
 					",YYYYMM\r\n",
 					"LIMIT 5"
 				],
-				"execution_count": 2
+				"execution_count": 4
 			}
 		]
 	}
