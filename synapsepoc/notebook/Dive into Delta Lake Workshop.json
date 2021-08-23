@@ -1,0 +1,70 @@
+{
+	"name": "Dive into Delta Lake Workshop",
+	"properties": {
+		"folder": {
+			"name": "Dive into Delta Lake"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Dive into Delta Lake Workshop #\r\n",
+					"### Spark 3.1.0 | Delta Lake 1.0.0 ###\r\n",
+					"\r\n",
+					"Reference: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-3-runtime"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"print(\"spark version: \",spark.version)"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
