@@ -60,7 +60,7 @@
 				},
 				"source": [
 					"# Dive into Delta Lake Workshop #\r\n",
-					"### Spark 3.1.0 | Delta Lake 1.0.0 ###\r\n",
+					"### Spark 3.1.2 | Delta Lake 1.0.0 ###\r\n",
 					"\r\n",
 					"Reference: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-3-runtime"
 				]
@@ -100,17 +100,9 @@
 				},
 				"source": [
 					"taxi_zone_path = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/lookup-data/taxi_zone_lookup.csv\"\r\n",
-					"taxi_trip_data_path = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow\"\r\n",
-					"\r\n",
-					"taxi_zone_schema = (\r\n",
-					"  StructType()\r\n",
-					"    .add('LocationID', 'integer')\r\n",
-					"    .add('Borough', 'string')\r\n",
-					"    .add('Zone', 'string')\r\n",
-					"    .add('ServiceZone', 'string')\r\n",
-					")"
+					"taxi_trip_data_path = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow\""
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -132,6 +124,25 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE DATABASE IF NOT EXISTS delta_lake_house"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					""
 				],
 				"execution_count": null
 			}
