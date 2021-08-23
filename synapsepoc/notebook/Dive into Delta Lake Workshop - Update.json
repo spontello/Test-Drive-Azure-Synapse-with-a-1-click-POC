@@ -235,7 +235,7 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
+					"SELECT * FROM delta_lake_house.taxi_trip WHERE YYYYMM > 201800 LIMIT 5"
 				],
 				"execution_count": 67
 			},
@@ -254,13 +254,18 @@
 					"microsoft": {
 						"language": "sparksql"
 					},
-					"collapsed": false
+					"collapsed": true
 				},
 				"source": [
 					"%%sql\r\n",
-					"DROP TABLE IF EXISTS delta_lake_house.taxi_zone"
+					"UPDATE delta_lake_house.taxi_trip \r\n",
+					"SET \r\n",
+					"ExpirationDt = CAST(current_date() AS DATE)\r\n",
+					",ActiveFlag = 0\r\n",
+					"WHERE\r\n",
+					"ExpirationDt IS NULL"
 				],
-				"execution_count": 54
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -281,11 +286,9 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"CREATE TABLE delta_lake_house.taxi_zone\r\n",
-					"USING delta\r\n",
-					"LOCATION \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_zone\"\r\n",
-					"AS SELECT\r\n",
-					"row_number() OVER(ORDER BY CAST(tz.LocationID AS int)) as ZoneKey\r\n",
+					"INSERT INTO delta_lake_house.taxi_zone\r\n",
+					"SELECT\r\n",
+					"row_number() OVER(ORDER BY CAST(tz.LocationID AS int)) + (SELECT MAX(ZoneKey) FROM delta_lake_house.taxi_zone) as ZoneKey\r\n",
 					",CAST(tz.LocationID AS int) AS LocationID\r\n",
 					",CAST(tz.Borough AS varchar(64)) AS Borough\r\n",
 					",CAST(tz.Zone AS varchar(64)) AS Zone\r\n",
@@ -306,6 +309,8 @@
 					"    ,AVG(fare_amount) AS AverageFare\r\n",
 					"    FROM\r\n",
 					"    delta_lake_house.taxi_trip\r\n",
+					"    WHERE\r\n",
+					"    YYYYMM > 201800\r\n",
 					"    GROUP BY\r\n",
 					"    CAST(DOLocationID AS int)\r\n",
 					"    ) tt\r\n",
@@ -359,7 +364,7 @@
 					"%%sql\r\n",
 					"MERGE INTO delta_lake_house.taxi_trip \r\n",
 					"USING delta_lake_house.taxi_zone \r\n",
-					"ON delta_lake_house.taxi_trip.DOLocationID = delta_lake_house.taxi_zone.LocationID\r\n",
+					"ON delta_lake_house.taxi_trip.DOLocationID = delta_lake_house.taxi_zone.LocationID AND delta_lake_house.taxi_trip.YYYYMM > 201800\r\n",
 					"WHEN MATCHED THEN\r\n",
 					"  UPDATE SET delta_lake_house.taxi_trip.ZoneKey = delta_lake_house.taxi_zone.ZoneKey"
 				],
@@ -384,9 +389,22 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
+					"SELECT \r\n",
+					"ZoneKey\r\n",
+					",DOLocationID\r\n",
+					",YYYYMM\r\n",
+					",COUNT(*) AS TripCount \r\n",
+					"FROM \r\n",
+					"delta_lake_house.taxi_trip \r\n",
+					"WHERE \r\n",
+					"DOLocationID = 1 AND YYYYMM IN (201701, 201801) \r\n",
+					"GROUP BY\r\n",
+					"ZoneKey\r\n",
+					",DOLocationID\r\n",
+					",YYYYMM\r\n",
+					"LIMIT 5"
 				],
-				"execution_count": 79
+				"execution_count": null
 			}
 		]
 	}
