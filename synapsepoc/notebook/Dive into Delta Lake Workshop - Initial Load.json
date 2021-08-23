@@ -1,5 +1,5 @@
 {
-	"name": "Dive into Delta Lake Workshop",
+	"name": "Dive into Delta Lake Workshop - Initial Load",
 	"properties": {
 		"folder": {
 			"name": "Dive into Delta Lake"
@@ -105,7 +105,7 @@
 					"taxi_zone_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_zone\"\r\n",
 					"taxi_trip_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_trip\""
 				],
-				"execution_count": 9
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -147,10 +147,32 @@
 					"    .csv(taxi_zone_raw)\r\n",
 					")\r\n",
 					"\r\n",
-					"zone_df.write.format(\"delta\").mode(\"overwrite\").save(taxi_zone_path)\r\n",
-					"df.write.mode(\"overwrite\").saveAsTable(\"delta_lake_house.Temp_csv\")"
+					"taxi_zone_df.write.mode(\"overwrite\").saveAsTable(\"delta_lake_house.stage_taxi_zone\")"
 				],
-				"execution_count": 8
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DESCRIBE delta_lake_house.stage_taxi_zone"
+				],
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
