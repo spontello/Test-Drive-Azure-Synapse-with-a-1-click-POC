@@ -99,10 +99,13 @@
 					"collapsed": true
 				},
 				"source": [
-					"taxi_zone_path = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/lookup-data/taxi_zone_lookup.csv\"\r\n",
-					"taxi_trip_data_path = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow\""
+					"taxi_zone_raw = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/lookup-data/taxi_zone_lookup.csv\"\r\n",
+					"taxi_trip_raw = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow\"\r\n",
+					"\r\n",
+					"taxi_zone_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_zone\"\r\n",
+					"taxi_trip_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_trip\""
 				],
-				"execution_count": 2
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -116,16 +119,38 @@
 							"deleting": false
 						}
 					},
-					"microsoft": {
-						"language": "sparksql"
+					"collapsed": true
+				},
+				"source": [
+					"spark.sql(\"CREATE DATABASE IF NOT EXISTS delta_lake_house\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
 					},
 					"collapsed": true
 				},
 				"source": [
-					"%%sql\r\n",
-					"CREATE DATABASE IF NOT EXISTS delta_lake_house"
+					"taxi_zone_df = (\r\n",
+					"    spark.read\r\n",
+					"    .option(\"header\",\"true\")\r\n",
+					"    .csv(taxi_zone_raw)\r\n",
+					")\r\n",
+					"\r\n",
+					"zone_df.write.format(\"delta\").mode(\"overwrite\").save(taxi_zone_path)\r\n",
+					"df.write.mode(\"overwrite\").saveAsTable(\"delta_lake_house.Temp_csv\")"
 				],
-				"execution_count": 6
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
