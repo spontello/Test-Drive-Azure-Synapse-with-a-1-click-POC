@@ -311,7 +311,7 @@
 					"%%sql\r\n",
 					"DROP TABLE IF EXISTS delta_lake_house.taxi_trip"
 				],
-				"execution_count": 39
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -334,6 +334,8 @@
 					"%%sql\r\n",
 					"CREATE TABLE delta_lake_house.taxi_trip\r\n",
 					"USING delta\r\n",
+					"PARTITIONED BY (YYYYMM)\r\n",
+					"LOCATION \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_trip\"\r\n",
 					"AS SELECT\r\n",
 					"CAST(VendorID AS int) AS VendorID\r\n",
 					",CAST(tpep_pickup_datetime AS timestamp) AS tpep_pickup_datetime\r\n",
@@ -355,7 +357,53 @@
 					",SUBSTR(tpep_pickup_datetime,1,7) AS YYYYMM\r\n",
 					"FROM delta_lake_house.stage_taxi_trip_2017"
 				],
-				"execution_count": 41
+				"execution_count": 45
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%sql\r\n",
+					"DESCRIBE delta_lake_house.taxi_trip"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%sql\r\n",
+					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
