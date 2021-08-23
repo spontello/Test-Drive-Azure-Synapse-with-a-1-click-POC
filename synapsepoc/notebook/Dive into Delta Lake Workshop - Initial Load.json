@@ -419,7 +419,7 @@
 					",CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\r\n",
 					",CAST(PULocationID AS int) AS PULocationID\r\n",
 					",CAST(DOLocationID AS int) AS DOLocationID\r\n",
-					",CAST(DOLocationID AS int) AS ZoneKey\r\n",
+					",CAST(NULL AS int) AS ZoneKey\r\n",
 					",CAST(payment_type AS int) AS payment_type\r\n",
 					",CAST(fare_amount AS decimal(7,2)) AS fare_amount\r\n",
 					",CAST(extra AS decimal(5,2)) AS extra\r\n",
