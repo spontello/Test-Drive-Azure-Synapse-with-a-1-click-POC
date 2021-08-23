@@ -160,6 +160,29 @@
 							"deleting": false
 						}
 					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DROP TABLE IF EXISTS delta_lake_house.stage_taxi_zone"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
 					"collapsed": true
 				},
 				"source": [
@@ -171,7 +194,7 @@
 					"\r\n",
 					"taxi_zone_df.write.mode(\"overwrite\").saveAsTable(\"delta_lake_house.stage_taxi_zone\")"
 				],
-				"execution_count": 15
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -194,7 +217,30 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.stage_taxi_zone"
 				],
-				"execution_count": 16
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DROP TABLE IF EXISTS delta_lake_house.stage_taxi_trip_2017"
+				],
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -219,7 +265,7 @@
 					"\r\n",
 					"taxi_trip_df.write.format(\"parquet\").mode(\"overwrite\").saveAsTable(\"delta_lake_house.stage_taxi_trip_2017\")"
 				],
-				"execution_count": 26
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -242,7 +288,7 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.stage_taxi_trip_2017"
 				],
-				"execution_count": 27
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -256,10 +302,75 @@
 							"deleting": false
 						}
 					},
+					"microsoft": {
+						"language": "sparksql"
+					},
 					"collapsed": true
 				},
 				"source": [
+					"%%sql\r\n",
+					"DROP TABLE IF EXISTS delta_lake_house.taxi_trip"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE TABLE delta_lake_house.taxi_trip\r\n",
+					"USING delta\r\n",
+					"\r\n",
+					"\r\n",
 					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%sql\r\n",
+					"MERGE INTO delta_lake_house.ClassEnrollmentDetail\r\n",
+					"USING delta_lake_house.Merge_delta\r\n",
+					"    ON delta_lake_house.ClassEnrollmentDetail.StudentID = delta_lake_house.Merge_delta.StudentID \r\n",
+					"    AND delta_lake_house.ClassEnrollmentDetail.TermID = delta_lake_house.Merge_delta.TermID \r\n",
+					"    AND delta_lake_house.ClassEnrollmentDetail.SubjectID = delta_lake_house.Merge_delta.SubjectID \r\n",
+					"    AND delta_lake_house.ClassEnrollmentDetail.ClassID = delta_lake_house.Merge_delta.ClassID \r\n",
+					"    AND delta_lake_house.ClassEnrollmentDetail.SchoolYear = delta_lake_house.Merge_delta.SchoolYear\r\n",
+					"    WHEN MATCHED THEN UPDATE\r\n",
+					"        SET delta_lake_house.ClassEnrollmentDetail.LastUpdateDt = delta_lake_house.Merge_delta.LastUpdateDt,\r\n",
+					"            delta_lake_house.ClassEnrollmentDetail.City = delta_lake_house.Merge_delta.City\r\n",
+					"    WHEN NOT MATCHED THEN \r\n",
+					"        INSERT *"
 				],
 				"execution_count": null
 			}
