@@ -1,0 +1,633 @@
+{
+	"name": "Dive into Delta Lake Workshop - Update",
+	"properties": {
+		"folder": {
+			"name": "Dive into Delta Lake"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "spontespark310",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/305180cd-c5ab-4c0f-b752-c85bdcf5dc88/resourceGroups/rg-sponte-synapse-one-click/providers/Microsoft.Synapse/workspaces/spoexxbkqfmujmvmpocws1/bigDataPools/spontespark310",
+				"name": "spontespark310",
+				"type": "Spark",
+				"endpoint": "https://spoexxbkqfmujmvmpocws1.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/spontespark310",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Dive into Delta Lake Workshop #\r\n",
+					"### Spark 3.1.2 | Delta Lake 1.0.0 ###\r\n",
+					"\r\n",
+					"Reference: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-3-runtime"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"print(\"spark version: \",spark.version)"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from pyspark.sql.functions import *"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"taxi_zone_raw = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/lookup-data/taxi_zone_lookup.csv\"\r\n",
+					"taxi_trip_raw_2017 = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow/*_2017-*.csv\"\r\n",
+					"taxi_trip_raw_2018 = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow/*_2018-*.csv\"\r\n",
+					"taxi_trip_raw_2019 = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow/*_2019-*.csv\"\r\n",
+					"taxi_trip_raw_2020 = \"abfss://raw@spoexxbkqfmujmvmpoc.dfs.core.windows.net/nyc-tlc/trip-data/yellow/*_2020-*.csv\"\r\n",
+					"\r\n",
+					"taxi_trip_parquet = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_trip\"\r\n",
+					"\r\n",
+					"taxi_zone_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_zone\"\r\n",
+					"taxi_trip_delta = \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_trip\""
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"spark.sql(\"CREATE DATABASE IF NOT EXISTS delta_lake_house\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DROP TABLE IF EXISTS delta_lake_house.stage_taxi_zone"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"taxi_zone_df = (\r\n",
+					"    spark.read\r\n",
+					"    .option(\"header\",\"true\")\r\n",
+					"    .csv(taxi_zone_raw)\r\n",
+					")\r\n",
+					"\r\n",
+					"taxi_zone_df.write.mode(\"overwrite\").saveAsTable(\"delta_lake_house.stage_taxi_zone\")"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DESCRIBE delta_lake_house.stage_taxi_zone"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SELECT * FROM delta_lake_house.stage_taxi_zone LIMIT 5"
+				],
+				"execution_count": 50
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DROP TABLE IF EXISTS delta_lake_house.stage_taxi_trip_2017"
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"taxi_trip_df = (\r\n",
+					"    spark.read\r\n",
+					"    .option(\"header\",\"true\")\r\n",
+					"    .csv(taxi_trip_raw_2017)\r\n",
+					")\r\n",
+					"\r\n",
+					"taxi_trip_df.write.format(\"parquet\").mode(\"overwrite\").saveAsTable(\"delta_lake_house.stage_taxi_trip_2017\")"
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DROP TABLE IF EXISTS delta_lake_house.stage_taxi_trip_2018"
+				],
+				"execution_count": 48
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"taxi_trip_df = (\r\n",
+					"    spark.read\r\n",
+					"    .option(\"header\",\"true\")\r\n",
+					"    .csv(taxi_trip_raw_2018)\r\n",
+					")\r\n",
+					"\r\n",
+					"taxi_trip_df.write.format(\"parquet\").mode(\"overwrite\").saveAsTable(\"delta_lake_house.stage_taxi_trip_2018\")"
+				],
+				"execution_count": 49
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DESCRIBE delta_lake_house.stage_taxi_trip_2017"
+				],
+				"execution_count": 37
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DROP TABLE IF EXISTS delta_lake_house.taxi_trip"
+				],
+				"execution_count": 64
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE TABLE delta_lake_house.taxi_trip\r\n",
+					"USING delta\r\n",
+					"PARTITIONED BY (YYYYMM)\r\n",
+					"LOCATION \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_trip\"\r\n",
+					"AS SELECT\r\n",
+					"CAST(VendorID AS int) AS VendorID\r\n",
+					",CAST(tpep_pickup_datetime AS timestamp) AS tpep_pickup_datetime\r\n",
+					",CAST(tpep_dropoff_datetime AS timestamp) AS tpep_dropoff_datetime\r\n",
+					",CAST(passenger_count AS int) AS passenger_count \r\n",
+					",CAST(trip_distance AS decimal(5,2)) AS trip_distance \r\n",
+					",CAST(RatecodeID AS int) AS RatecodeID\r\n",
+					",CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\r\n",
+					",CAST(PULocationID AS int) AS PULocationID\r\n",
+					",CAST(DOLocationID AS int) AS DOLocationID\r\n",
+					",CAST(DOLocationID AS int) AS ZoneKey\r\n",
+					",CAST(payment_type AS int) AS payment_type\r\n",
+					",CAST(fare_amount AS decimal(7,2)) AS fare_amount\r\n",
+					",CAST(extra AS decimal(5,2)) AS extra\r\n",
+					",CAST(mta_tax AS decimal(5,2)) AS mta_tax\r\n",
+					",CAST(tip_amount AS decimal(5,2)) AS tip_amount\r\n",
+					",CAST(tolls_amount AS decimal(5,2)) AS tolls_amount\r\n",
+					",CAST(improvement_surcharge AS decimal(5,2)) AS improvement_surcharge\r\n",
+					",CAST(total_amount AS decimal(7,2)) AS total_amount\r\n",
+					",SUBSTR(tpep_pickup_datetime,1,7) AS YYYYMM\r\n",
+					"FROM delta_lake_house.stage_taxi_trip_2017"
+				],
+				"execution_count": 65
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DESCRIBE delta_lake_house.taxi_trip"
+				],
+				"execution_count": 66
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
+				],
+				"execution_count": 67
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"DROP TABLE IF EXISTS delta_lake_house.taxi_zone"
+				],
+				"execution_count": 54
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE TABLE delta_lake_house.taxi_zone\r\n",
+					"USING delta\r\n",
+					"LOCATION \"abfss://delta@spoexxbkqfmujmvmpoc.dfs.core.windows.net/synapse_spark/nyc-tlc/taxi_zone\"\r\n",
+					"AS SELECT\r\n",
+					"row_number() OVER(ORDER BY CAST(tz.LocationID AS int)) as ZoneKey\r\n",
+					",CAST(tz.LocationID AS int) AS LocationID\r\n",
+					",CAST(tz.Borough AS varchar(64)) AS Borough\r\n",
+					",CAST(tz.Zone AS varchar(64)) AS Zone\r\n",
+					",CAST(tz.service_zone AS varchar(64)) AS ServiceZone\r\n",
+					",tt.TripCount\r\n",
+					",tt.AverageDistance\r\n",
+					",tt.AverageFare\r\n",
+					",CAST(current_date() AS DATE) AS EffectiveDt\r\n",
+					",CAST(NULL AS DATE) AS ExpirationDt\r\n",
+					",1 AS ActiveFlag\r\n",
+					"FROM \r\n",
+					"delta_lake_house.stage_taxi_zone tz\r\n",
+					"LEFT OUTER JOIN\r\n",
+					"    (SELECT\r\n",
+					"    CAST(DOLocationID AS int) AS DOLocationID\r\n",
+					"    ,COUNT(*) AS TripCount\r\n",
+					"    ,AVG(trip_distance) AS AverageDistance\r\n",
+					"    ,AVG(fare_amount) AS AverageFare\r\n",
+					"    FROM\r\n",
+					"    delta_lake_house.taxi_trip\r\n",
+					"    GROUP BY\r\n",
+					"    CAST(DOLocationID AS int)\r\n",
+					"    ) tt\r\n",
+					"    ON tz.LocationID = tt.DOLocationID\r\n",
+					"ORDER BY \r\n",
+					"CAST(tz.LocationID AS int)"
+				],
+				"execution_count": 55
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SELECT * FROM delta_lake_house.taxi_zone LIMIT 5"
+				],
+				"execution_count": 59
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"MERGE INTO delta_lake_house.taxi_trip \r\n",
+					"USING delta_lake_house.taxi_zone \r\n",
+					"ON delta_lake_house.taxi_trip.DOLocationID = delta_lake_house.taxi_zone.LocationID\r\n",
+					"WHEN MATCHED THEN\r\n",
+					"  UPDATE SET delta_lake_house.taxi_trip.ZoneKey = delta_lake_house.taxi_zone.ZoneKey"
+				],
+				"execution_count": 78
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
+				],
+				"execution_count": 79
+			}
+		]
+	}
+}
