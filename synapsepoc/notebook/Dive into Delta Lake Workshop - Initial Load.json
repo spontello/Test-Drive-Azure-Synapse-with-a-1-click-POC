@@ -1,5 +1,5 @@
 {
-	"name": "Dive into Delta Lake Workshop",
+	"name": "Dive into Delta Lake Workshop - Initial Load",
 	"properties": {
 		"folder": {
 			"name": "Dive into Delta Lake"
@@ -328,7 +328,7 @@
 					"microsoft": {
 						"language": "sparksql"
 					},
-					"collapsed": true
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -374,13 +374,13 @@
 					"microsoft": {
 						"language": "sparksql"
 					},
-					"collapsed": true
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.taxi_trip"
 				],
-				"execution_count": null
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -397,47 +397,13 @@
 					"microsoft": {
 						"language": "sparksql"
 					},
-					"collapsed": true
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
 					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
 				],
-				"execution_count": null
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "sparksql"
-					},
-					"collapsed": true
-				},
-				"source": [
-					"%%sql\r\n",
-					"MERGE INTO delta_lake_house.ClassEnrollmentDetail\r\n",
-					"USING delta_lake_house.Merge_delta\r\n",
-					"    ON delta_lake_house.ClassEnrollmentDetail.StudentID = delta_lake_house.Merge_delta.StudentID \r\n",
-					"    AND delta_lake_house.ClassEnrollmentDetail.TermID = delta_lake_house.Merge_delta.TermID \r\n",
-					"    AND delta_lake_house.ClassEnrollmentDetail.SubjectID = delta_lake_house.Merge_delta.SubjectID \r\n",
-					"    AND delta_lake_house.ClassEnrollmentDetail.ClassID = delta_lake_house.Merge_delta.ClassID \r\n",
-					"    AND delta_lake_house.ClassEnrollmentDetail.SchoolYear = delta_lake_house.Merge_delta.SchoolYear\r\n",
-					"    WHEN MATCHED THEN UPDATE\r\n",
-					"        SET delta_lake_house.ClassEnrollmentDetail.LastUpdateDt = delta_lake_house.Merge_delta.LastUpdateDt,\r\n",
-					"            delta_lake_house.ClassEnrollmentDetail.City = delta_lake_house.Merge_delta.City\r\n",
-					"    WHEN NOT MATCHED THEN \r\n",
-					"        INSERT *"
-				],
-				"execution_count": null
+				"execution_count": 47
 			}
 		]
 	}
