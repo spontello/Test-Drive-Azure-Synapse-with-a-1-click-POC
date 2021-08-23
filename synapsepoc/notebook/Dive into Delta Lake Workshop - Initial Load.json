@@ -454,7 +454,7 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.taxi_trip"
 				],
-				"execution_count": 60
+				"execution_count": 66
 			},
 			{
 				"cell_type": "code",
@@ -477,7 +477,7 @@
 					"%%sql\r\n",
 					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
 				],
-				"execution_count": 61
+				"execution_count": 67
 			},
 			{
 				"cell_type": "code",
@@ -597,12 +597,29 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"UPDATE TABLE delta_lake_house.taxi_trip\r\n",
+					"UPDATE TABLE taxi_trip\r\n",
 					"SET ZoneKey = tz.ZoneKey\r\n",
-					"FROM \r\n",
-					"delta_lake_house.taxi_zone tz\r\n",
-					"WHERE \r\n",
-					"DOLocationID = tz.DOLocationID"
+					"WHERE ZoneKey = \r\n",
+					"(SELECT ZoneKey FROM delta_lake_house.taxi_zone tz WHERE DOLocationID = tz.DOLocationID)"
+				],
+				"execution_count": 68
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					""
 				],
 				"execution_count": null
 			}
