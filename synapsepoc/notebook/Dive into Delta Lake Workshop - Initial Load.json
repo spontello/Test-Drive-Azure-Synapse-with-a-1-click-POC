@@ -419,6 +419,7 @@
 					",CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\r\n",
 					",CAST(PULocationID AS int) AS PULocationID\r\n",
 					",CAST(DOLocationID AS int) AS DOLocationID\r\n",
+					",CAST(DOLocationID AS int) AS ZoneKey\r\n",
 					",CAST(payment_type AS int) AS payment_type\r\n",
 					",CAST(fare_amount AS decimal(7,2)) AS fare_amount\r\n",
 					",CAST(extra AS decimal(5,2)) AS extra\r\n",
@@ -493,15 +494,16 @@
 					"microsoft": {
 						"language": "sparksql"
 					},
-					"collapsed": true
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
 					"SELECT\r\n",
-					"CAST(tz.LocationID AS int) AS LocationID\r\n",
+					"row_number() OVER(ORDER BY CAST(tz.LocationID AS int)) as ZoneKey\r\n",
+					",CAST(tz.LocationID AS int) AS LocationID\r\n",
 					",CAST(tz.Borough AS varchar(64)) AS Borough\r\n",
-					",CAST(tz.Zone AS int) AS Zone\r\n",
-					",CAST(tz.service_zone AS int) AS ServiceZone\r\n",
+					",CAST(tz.Zone AS varchar(64)) AS Zone\r\n",
+					",CAST(tz.service_zone AS varchar(64)) AS ServiceZone\r\n",
 					",tt.TripCount\r\n",
 					",tt.AverageDistance\r\n",
 					",tt.AverageFare\r\n",
@@ -521,9 +523,11 @@
 					"    GROUP BY\r\n",
 					"    CAST(DOLocationID AS int)\r\n",
 					"    ) tt\r\n",
-					"    ON tz.LocationID = tt.DOLocationID"
+					"    ON tz.LocationID = tt.DOLocationID\r\n",
+					"ORDER BY \r\n",
+					"CAST(tz.LocationID AS int)"
 				],
-				"execution_count": 51
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
