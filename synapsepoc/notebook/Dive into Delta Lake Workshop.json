@@ -305,13 +305,13 @@
 					"microsoft": {
 						"language": "sparksql"
 					},
-					"collapsed": true
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
 					"DROP TABLE IF EXISTS delta_lake_house.taxi_trip"
 				],
-				"execution_count": null
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -334,11 +334,27 @@
 					"%%sql\r\n",
 					"CREATE TABLE delta_lake_house.taxi_trip\r\n",
 					"USING delta\r\n",
-					"\r\n",
-					"\r\n",
-					""
+					"AS SELECT\r\n",
+					"CAST(VendorID AS int) AS VendorID\r\n",
+					",CAST(tpep_pickup_datetime AS timestamp) AS tpep_pickup_datetime\r\n",
+					",CAST(tpep_dropoff_datetime AS timestamp) AS tpep_dropoff_datetime\r\n",
+					",CAST(passenger_count AS int) AS passenger_count \r\n",
+					",CAST(trip_distance AS decimal(5,2)) AS trip_distance \r\n",
+					",CAST(RatecodeID AS int) AS RatecodeID\r\n",
+					",CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\r\n",
+					",CAST(PULocationID AS int) AS PULocationID\r\n",
+					",CAST(DOLocationID AS int) AS DOLocationID\r\n",
+					",CAST(payment_type AS int) AS payment_type\r\n",
+					",CAST(fare_amount AS decimal(7,2)) AS fare_amount\r\n",
+					",CAST(extra AS decimal(5,2)) AS extra\r\n",
+					",CAST(mta_tax AS decimal(5,2)) AS mta_tax\r\n",
+					",CAST(tip_amount AS decimal(5,2)) AS tip_amount\r\n",
+					",CAST(tolls_amount AS decimal(5,2)) AS tolls_amount\r\n",
+					",CAST(improvement_surcharge AS decimal(5,2)) AS improvement_surcharge\r\n",
+					",CAST(total_amount AS decimal(7,2)) AS total_amount\r\n",
+					",SUBSTR(1,7) AS YYYYMM"
 				],
-				"execution_count": null
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
