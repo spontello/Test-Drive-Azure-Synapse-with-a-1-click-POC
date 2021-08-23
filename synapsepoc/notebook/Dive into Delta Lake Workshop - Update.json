@@ -214,7 +214,7 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.taxi_trip"
 				],
-				"execution_count": 66
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -404,7 +404,7 @@
 					",YYYYMM\r\n",
 					"LIMIT 5"
 				],
-				"execution_count": null
+				"execution_count": 2
 			}
 		]
 	}
