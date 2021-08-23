@@ -598,7 +598,11 @@
 				"source": [
 					"%%sql\r\n",
 					"UPDATE TABLE delta_lake_house.taxi_trip\r\n",
-					"SET "
+					"SET ZoneKey = tz.ZoneKey\r\n",
+					"FROM \r\n",
+					"delta_lake_house.taxi_zone tz\r\n",
+					"WHERE \r\n",
+					"DOLocationID = tz.DOLocationID"
 				],
 				"execution_count": null
 			}
