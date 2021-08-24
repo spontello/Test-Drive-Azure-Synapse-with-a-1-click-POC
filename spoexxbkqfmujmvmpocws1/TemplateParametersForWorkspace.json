@@ -26,11 +26,11 @@
 		"ls_datalake_properties_typeProperties_url": {
 			"value": "@{concat('https://',linkedService().datalakeAccountName,'.dfs.core.windows.net')}"
 		},
-		"ls_http_server_properties_typeProperties_url": {
-			"value": "@{linkedService().baseURL}"
-		},
 		"ls_default_datalake_properties_typeProperties_url": {
 			"value": "https://spoexxbkqfmujmvmpoc.dfs.core.windows.net"
+		},
+		"ls_http_server_properties_typeProperties_url": {
+			"value": "@{linkedService().baseURL}"
 		}
 	}
 }
