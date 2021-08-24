@@ -1,0 +1,20 @@
+{
+	"name": "03 - Explore Data 1",
+	"properties": {
+		"folder": {
+			"name": "Dive into Delta Lake"
+		},
+		"content": {
+			"query": "SELECT\n    YYYYMM\n    ,COUNT_BIG(*) AS TotalRows\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/delta/databricks/nyc-tlc/taxi_trip',\n        FORMAT='DELTA'\n    ) AS [result]\nWHERE \n    YYYYMM LIKE '2017-%'\nGROUP BY \nYYYYMM\nORDER BY \nYYYYMM",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc-taxi",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
