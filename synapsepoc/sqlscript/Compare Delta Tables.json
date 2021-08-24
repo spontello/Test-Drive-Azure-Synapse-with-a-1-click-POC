@@ -1,0 +1,17 @@
+{
+	"name": "Compare Delta Tables",
+	"properties": {
+		"content": {
+			"query": "SELECT \n[Platform]\n,[YYYYMM]\n,[Trips]\n FROM \n [report].[TripsByYYYYMM]\n WHERE\n YYYYMM > '2018-05' AND YYYYMM < '2018-12'\nORDER BY\n2,1",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc-taxi",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
