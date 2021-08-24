@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'TripFaresSynapseAnalyticsLinkedService'"
 		},
+		"ls_datalake_df_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_datalake_df'"
+		},
 		"ls_default_datalake_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_default_datalake'"
@@ -35,6 +39,10 @@
 			"type": "string",
 			"defaultValue": "@{concat('https://',linkedService().datalakeAccountName,'.dfs.core.windows.net')}"
 		},
+		"ls_datalake_df_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://spoexxbkqfmujmvmpoc.dfs.core.windows.net"
+		},
 		"ls_default_datalake_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://spoexxbkqfmujmvmpoc.dfs.core.windows.net"
@@ -42,6 +50,10 @@
 		"ls_http_server_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "@{linkedService().baseURL}"
+		},
+		"ls_synapse_serverless_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "synapse-serverless-cs"
 		}
 	},
 	"variables": {
@@ -242,6 +254,112 @@
 				"[concat(variables('workspaceId'), '/datasets/ds_csv_source_param')]",
 				"[concat(variables('workspaceId'), '/datasets/ds_http_csv_param')]",
 				"[concat(variables('workspaceId'), '/datasets/ds_csv_sink_param')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Delta Lake - Initial Load')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Delta Lake Initial",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_delta_lake_initial",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"StageTaxiTrip": {},
+									"StageTaxiZone": {},
+									"TaxiTrip": {},
+									"TaxiZone": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Dive into Delta Lake"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/df_delta_lake_initial')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Delta Lake - Update')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Delta Lake Update",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_delta_lake_update",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"StageTaxiTrip": {},
+									"StageTaxiZone": {},
+									"TaxiZoneSource": {},
+									"TaxiTrip": {},
+									"TaxiZone": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Dive into Delta Lake"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/df_delta_lake_update')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
@@ -1034,6 +1152,69 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/stage_taxi_zone')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_synapse_serverless",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "stage",
+					"table": "taxi_zone"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/ls_synapse_serverless')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/taxi_trip_2017')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_synapse_serverless",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "stage",
+					"table": "taxi_trip_2017"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/ls_synapse_serverless')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/taxi_trip_2018')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_synapse_serverless",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "stage",
+					"table": "taxi_trip_2018"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/ls_synapse_serverless')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/tripDataSink')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -1363,6 +1544,29 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/ls_datalake_df')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_datalake_df_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_datalake_df_accountKey')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ls_default_datalake')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -1413,6 +1617,36 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/ls_synapse_serverless')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "keyVaultLinkedservice",
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"keyVaultName": "kvspoexxbkqfmujmvmpoc"
+							}
+						},
+						"secretName": "[parameters('ls_synapse_serverless_properties_typeProperties_connectionString_secretName')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('workspaceId'), '/linkedServices/keyVaultLinkedservice')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
 			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
 			"apiVersion": "2019-06-01-preview",
@@ -1435,6 +1669,185 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/df_delta_lake_initial')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Dive into Delta Lake"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "taxi_trip_2017",
+								"type": "DatasetReference"
+							},
+							"name": "StageTaxiTrip"
+						},
+						{
+							"dataset": {
+								"referenceName": "stage_taxi_zone",
+								"type": "DatasetReference"
+							},
+							"name": "StageTaxiZone"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "ls_datalake_df",
+								"type": "LinkedServiceReference"
+							},
+							"name": "TaxiTrip"
+						},
+						{
+							"linkedService": {
+								"referenceName": "ls_datalake_df",
+								"type": "LinkedServiceReference"
+							},
+							"name": "TaxiZone"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DerivedColumnsTrip"
+						},
+						{
+							"name": "SurrogateKey"
+						},
+						{
+							"name": "DerivedColumnsZone"
+						},
+						{
+							"name": "JoinLocationStats"
+						},
+						{
+							"name": "AggregateLocationStats"
+						},
+						{
+							"name": "JoinZoneLookup"
+						},
+						{
+							"name": "SelectZoneLookup"
+						},
+						{
+							"name": "SelectTripCols"
+						}
+					],
+					"script": "source(output(\n\t\tVendorID as integer,\n\t\ttpep_pickup_datetime as timestamp,\n\t\ttpep_dropoff_datetime as timestamp,\n\t\tpassenger_count as integer,\n\t\ttrip_distance as decimal(7,2),\n\t\tRatecodeID as integer,\n\t\tstore_and_fwd_flag as string,\n\t\tPULocationID as integer,\n\t\tDOLocationID as integer,\n\t\tZoneKey as integer,\n\t\tpayment_type as integer,\n\t\tfare_amount as decimal(7,2),\n\t\textra as decimal(5,2),\n\t\tmta_tax as decimal(5,2),\n\t\ttip_amount as decimal(5,2),\n\t\ttolls_amount as decimal(5,2),\n\t\timprovement_surcharge as decimal(5,2),\n\t\ttotal_amount as decimal(7,2),\n\t\tYYYYMM as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiTrip\nsource(output(\n\t\tLocationID as integer,\n\t\tBorough as string,\n\t\tZone as string,\n\t\tServiceZone as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiZone\nStageTaxiTrip derive(YYYYMM = toString(tpep_pickup_datetime,\"YYYY-MM\"),\n\tpartitionBy('key',\n\t\t0,\n\t\tYYYYMM\n\t)) ~> DerivedColumnsTrip\nStageTaxiZone keyGenerate(output(ZoneKey as long),\n\tstartAt: 1L) ~> SurrogateKey\nSurrogateKey derive(EffectiveDt = currentDate(),\n\t\tExpirationDt = toDate(null()),\n\t\tActiveFlag = 1) ~> DerivedColumnsZone\nDerivedColumnsZone, AggregateLocationStats join(LocationID == DOLocationID,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> JoinLocationStats\nDerivedColumnsTrip aggregate(groupBy(DOLocationID),\n\tTripCount = count(),\n\t\tAverageDistance = avg(trip_distance),\n\t\tAverageFare = avg(fare_amount)) ~> AggregateLocationStats\nDerivedColumnsTrip, SelectZoneLookup join(DOLocationID == LocationID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinZoneLookup\nDerivedColumnsZone select(mapColumn(\n\t\tLocationID,\n\t\tZoneKey\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectZoneLookup\nJoinZoneLookup select(mapColumn(\n\t\tVendorID,\n\t\ttpep_pickup_datetime,\n\t\ttpep_dropoff_datetime,\n\t\tpassenger_count,\n\t\ttrip_distance,\n\t\tRatecodeID,\n\t\tstore_and_fwd_flag,\n\t\tPULocationID,\n\t\tDOLocationID,\n\t\tpayment_type,\n\t\tfare_amount,\n\t\textra,\n\t\tmta_tax,\n\t\ttip_amount,\n\t\ttolls_amount,\n\t\timprovement_surcharge,\n\t\ttotal_amount,\n\t\tYYYYMM,\n\t\tZoneKey = SelectZoneLookup@ZoneKey\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectTripCols\nSelectTripCols sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_trip',\n\toverwrite:true,\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tVendorID,\n\t\ttpep_pickup_datetime,\n\t\ttpep_dropoff_datetime,\n\t\tpassenger_count,\n\t\ttrip_distance,\n\t\tRatecodeID,\n\t\tstore_and_fwd_flag,\n\t\tPULocationID,\n\t\tDOLocationID,\n\t\tZoneKey,\n\t\tpayment_type,\n\t\tfare_amount,\n\t\textra,\n\t\tmta_tax,\n\t\ttip_amount,\n\t\ttolls_amount,\n\t\timprovement_surcharge,\n\t\ttotal_amount,\n\t\tYYYYMM\n\t)) ~> TaxiTrip\nJoinLocationStats sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_zone',\n\toverwrite:true,\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> TaxiZone"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/taxi_trip_2017')]",
+				"[concat(variables('workspaceId'), '/datasets/stage_taxi_zone')]",
+				"[concat(variables('workspaceId'), '/linkedServices/ls_datalake_df')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/df_delta_lake_update')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Dive into Delta Lake"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "taxi_trip_2018",
+								"type": "DatasetReference"
+							},
+							"name": "StageTaxiTrip"
+						},
+						{
+							"dataset": {
+								"referenceName": "stage_taxi_zone",
+								"type": "DatasetReference"
+							},
+							"name": "StageTaxiZone"
+						},
+						{
+							"linkedService": {
+								"referenceName": "ls_datalake_df",
+								"type": "LinkedServiceReference"
+							},
+							"name": "TaxiZoneSource"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "ls_datalake_df",
+								"type": "LinkedServiceReference"
+							},
+							"name": "TaxiTrip"
+						},
+						{
+							"linkedService": {
+								"referenceName": "ls_datalake_df",
+								"type": "LinkedServiceReference"
+							},
+							"name": "TaxiZone"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DerivedColumnsTrip"
+						},
+						{
+							"name": "SurrogateKey"
+						},
+						{
+							"name": "DerivedColumnsZone"
+						},
+						{
+							"name": "JoinLocationStats"
+						},
+						{
+							"name": "AggregateLocationStats"
+						},
+						{
+							"name": "JoinZoneLookup"
+						},
+						{
+							"name": "SelectZoneLookup"
+						},
+						{
+							"name": "SelectTripCols"
+						},
+						{
+							"name": "UpdateTaxiZone"
+						},
+						{
+							"name": "UpdateExistingZones"
+						},
+						{
+							"name": "MaxZoneKeyAgg"
+						},
+						{
+							"name": "Join1"
+						},
+						{
+							"name": "SelectZoneCols"
+						},
+						{
+							"name": "Union1"
+						}
+					],
+					"script": "source(output(\n\t\tVendorID as integer,\n\t\ttpep_pickup_datetime as timestamp,\n\t\ttpep_dropoff_datetime as timestamp,\n\t\tpassenger_count as integer,\n\t\ttrip_distance as decimal(7,2),\n\t\tRatecodeID as integer,\n\t\tstore_and_fwd_flag as string,\n\t\tPULocationID as integer,\n\t\tDOLocationID as integer,\n\t\tZoneKey as integer,\n\t\tpayment_type as integer,\n\t\tfare_amount as decimal(9,2),\n\t\textra as decimal(7,2),\n\t\tmta_tax as decimal(7,2),\n\t\ttip_amount as decimal(7,2),\n\t\ttolls_amount as decimal(7,2),\n\t\timprovement_surcharge as decimal(7,2),\n\t\ttotal_amount as decimal(9,2),\n\t\tYYYYMM as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiTrip\nsource(output(\n\t\tLocationID as integer,\n\t\tBorough as string,\n\t\tZone as string,\n\t\tServiceZone as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiZone\nsource(output(\n\t\tLocationID as integer,\n\t\tBorough as string,\n\t\tZone as string,\n\t\tServiceZone as string,\n\t\tZoneKey as long,\n\t\tEffectiveDt as date,\n\t\tExpirationDt as date,\n\t\tActiveFlag as integer,\n\t\tDOLocationID as integer,\n\t\tTripCount as long,\n\t\tAverageDistance as decimal(11,6),\n\t\tAverageFare as decimal(11,6)\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_zone') ~> TaxiZoneSource\nStageTaxiTrip derive(YYYYMM = toString(tpep_pickup_datetime,\"YYYY-MM\"),\n\tpartitionBy('key',\n\t\t0,\n\t\tYYYYMM\n\t)) ~> DerivedColumnsTrip\nStageTaxiZone keyGenerate(output(ZoneKey as long),\n\tstartAt: 1L) ~> SurrogateKey\nJoin1 derive(EffectiveDt = currentDate(),\n\t\tExpirationDt = toDate(null()),\n\t\tActiveFlag = 1,\n\t\tZoneKey = ZoneKey + MaxZoneKey) ~> DerivedColumnsZone\nDerivedColumnsZone, AggregateLocationStats join(LocationID == DOLocationID,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> JoinLocationStats\nDerivedColumnsTrip aggregate(groupBy(DOLocationID),\n\tTripCount = count(),\n\t\tAverageDistance = avg(trip_distance),\n\t\tAverageFare = avg(fare_amount)) ~> AggregateLocationStats\nDerivedColumnsTrip, SelectZoneLookup join(DOLocationID == LocationID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinZoneLookup\nDerivedColumnsZone select(mapColumn(\n\t\tLocationID,\n\t\tZoneKey\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectZoneLookup\nJoinZoneLookup select(mapColumn(\n\t\tVendorID,\n\t\ttpep_pickup_datetime,\n\t\ttpep_dropoff_datetime,\n\t\tpassenger_count,\n\t\ttrip_distance,\n\t\tRatecodeID,\n\t\tstore_and_fwd_flag,\n\t\tPULocationID,\n\t\tDOLocationID,\n\t\tpayment_type,\n\t\tfare_amount,\n\t\textra,\n\t\tmta_tax,\n\t\ttip_amount,\n\t\ttolls_amount,\n\t\timprovement_surcharge,\n\t\ttotal_amount,\n\t\tYYYYMM,\n\t\tZoneKey = SelectZoneLookup@ZoneKey\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectTripCols\nTaxiZoneSource derive(ActiveFlag = 0,\n\t\tExpirationDt = currentDate()) ~> UpdateTaxiZone\nUpdateTaxiZone alterRow(updateIf(1==1)) ~> UpdateExistingZones\nTaxiZoneSource aggregate(MaxZoneKey = max(ZoneKey)) ~> MaxZoneKeyAgg\nSurrogateKey, MaxZoneKeyAgg join(true(),\n\tjoinType:'cross',\n\tbroadcast: 'auto')~> Join1\nJoinLocationStats select(mapColumn(\n\t\tLocationID,\n\t\tBorough,\n\t\tZone,\n\t\tServiceZone,\n\t\tZoneKey,\n\t\tEffectiveDt,\n\t\tExpirationDt,\n\t\tActiveFlag,\n\t\tDOLocationID,\n\t\tTripCount,\n\t\tAverageDistance,\n\t\tAverageFare\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectZoneCols\nSelectZoneCols, UpdateExistingZones union(byName: true)~> Union1\nSelectTripCols sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_trip',\n\toverwrite:true,\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tVendorID,\n\t\ttpep_pickup_datetime,\n\t\ttpep_dropoff_datetime,\n\t\tpassenger_count,\n\t\ttrip_distance,\n\t\tRatecodeID,\n\t\tstore_and_fwd_flag,\n\t\tPULocationID,\n\t\tDOLocationID,\n\t\tZoneKey,\n\t\tpayment_type,\n\t\tfare_amount,\n\t\textra,\n\t\tmta_tax,\n\t\ttip_amount,\n\t\ttolls_amount,\n\t\timprovement_surcharge,\n\t\ttotal_amount,\n\t\tYYYYMM\n\t)) ~> TaxiTrip\nUnion1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_zone',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['ZoneKey'],\n\tumask: 0022,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> TaxiZone"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/taxi_trip_2018')]",
+				"[concat(variables('workspaceId'), '/datasets/stage_taxi_zone')]",
+				"[concat(variables('workspaceId'), '/linkedServices/ls_datalake_df')]"
 			]
 		},
 		{
@@ -1532,6 +1945,49 @@
 				},
 				"content": {
 					"query": "/* inspect raw taxi trip data */\nSELECT TOP 50\n    VendorID\n    ,tpep_pickup_datetime\n    ,tpep_dropoff_datetime\n    ,passenger_count\n    ,trip_distance\n    ,RatecodeID\n    ,store_and_fwd_flag\n    ,PULocationID\n    ,DOLocationID\n    ,payment_type\n    ,fare_amount\n    ,extra\n    ,mta_tax\n    ,tip_amount\n    ,tolls_amount\n    ,improvement_surcharge\n    ,total_amount\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/yellow_tripdata_2017-01.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = true\n    ) AS [result]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc-taxi",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/02 - Create stage views')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Dive into Delta Lake"
+				},
+				"content": {
+					"query": "/*\nDROP SCHEMA stage;\n\nCREATE SCHEMA stage;\n*/\n\nDROP VIEW IF EXISTS stage.taxi_trip_2017;\nGO\n\nCREATE VIEW stage.taxi_trip_2017\nAS \nSELECT\nCAST(VendorID AS int) AS VendorID\n,CAST(tpep_pickup_datetime AS SMALLDATETIME) AS tpep_pickup_datetime\n,CAST(tpep_dropoff_datetime AS SMALLDATETIME) AS tpep_dropoff_datetime\n,CAST(passenger_count AS int) AS passenger_count \n,CAST(trip_distance AS decimal(7,2)) AS trip_distance \n,CAST(RatecodeID AS int) AS RatecodeID\n,CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\n,CAST(PULocationID AS int) AS PULocationID\n,CAST(DOLocationID AS int) AS DOLocationID\n,CAST(NULL AS int) AS ZoneKey\n,CAST(payment_type AS int) AS payment_type\n,CAST(fare_amount AS decimal(9,2)) AS fare_amount\n,CAST(extra AS decimal(7,2)) AS extra\n,CAST(mta_tax AS decimal(7,2)) AS mta_tax\n,CAST(tip_amount AS decimal(7,2)) AS tip_amount\n,CAST(tolls_amount AS decimal(7,2)) AS tolls_amount\n,CAST(improvement_surcharge AS decimal(7,2)) AS improvement_surcharge\n,CAST(total_amount AS decimal(9,2)) AS total_amount\n,SUBSTRING(CAST(tpep_pickup_datetime AS varchar(16)),1,7) AS YYYYMM\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/*_2017-*.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO\n\nDROP VIEW IF EXISTS stage.taxi_trip_2018;\nGO\n\nCREATE VIEW stage.taxi_trip_2018\nAS \nSELECT\nCAST(VendorID AS int) AS VendorID\n,CAST(tpep_pickup_datetime AS SMALLDATETIME) AS tpep_pickup_datetime\n,CAST(tpep_dropoff_datetime AS SMALLDATETIME) AS tpep_dropoff_datetime\n,CAST(passenger_count AS int) AS passenger_count \n,CAST(trip_distance AS decimal(7,2)) AS trip_distance \n,CAST(RatecodeID AS int) AS RatecodeID\n,CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\n,CAST(PULocationID AS int) AS PULocationID\n,CAST(DOLocationID AS int) AS DOLocationID\n,CAST(NULL AS int) AS ZoneKey\n,CAST(payment_type AS int) AS payment_type\n,CAST(fare_amount AS decimal(9,2)) AS fare_amount\n,CAST(extra AS decimal(7,2)) AS extra\n,CAST(mta_tax AS decimal(7,2)) AS mta_tax\n,CAST(tip_amount AS decimal(7,2)) AS tip_amount\n,CAST(tolls_amount AS decimal(7,2)) AS tolls_amount\n,CAST(improvement_surcharge AS decimal(7,2)) AS improvement_surcharge\n,CAST(total_amount AS decimal(9,2)) AS total_amount\n,SUBSTRING(CAST(tpep_pickup_datetime AS varchar(16)),1,7) AS YYYYMM\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/*_2018-*.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO\n\nDROP VIEW IF EXISTS stage.taxi_trip_2019;\nGO\n\nCREATE VIEW stage.taxi_trip_2019\nAS \nSELECT\nCAST(VendorID AS int) AS VendorID\n,CAST(tpep_pickup_datetime AS SMALLDATETIME) AS tpep_pickup_datetime\n,CAST(tpep_dropoff_datetime AS SMALLDATETIME) AS tpep_dropoff_datetime\n,CAST(passenger_count AS int) AS passenger_count \n,CAST(trip_distance AS decimal(7,2)) AS trip_distance \n,CAST(RatecodeID AS int) AS RatecodeID\n,CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\n,CAST(PULocationID AS int) AS PULocationID\n,CAST(DOLocationID AS int) AS DOLocationID\n,CAST(NULL AS int) AS ZoneKey\n,CAST(payment_type AS int) AS payment_type\n,CAST(fare_amount AS decimal(9,2)) AS fare_amount\n,CAST(extra AS decimal(7,2)) AS extra\n,CAST(mta_tax AS decimal(7,2)) AS mta_tax\n,CAST(tip_amount AS decimal(7,2)) AS tip_amount\n,CAST(tolls_amount AS decimal(7,2)) AS tolls_amount\n,CAST(improvement_surcharge AS decimal(7,2)) AS improvement_surcharge\n,CAST(total_amount AS decimal(9,2)) AS total_amount\n,SUBSTRING(CAST(tpep_pickup_datetime AS varchar(16)),1,7) AS YYYYMM\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/*_2019-*.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO\n\nDROP VIEW IF EXISTS stage.taxi_trip_2020;\nGO\n\nCREATE VIEW stage.taxi_trip_2020\nAS \nSELECT\nCAST(VendorID AS int) AS VendorID\n,CAST(tpep_pickup_datetime AS SMALLDATETIME) AS tpep_pickup_datetime\n,CAST(tpep_dropoff_datetime AS SMALLDATETIME) AS tpep_dropoff_datetime\n,CAST(passenger_count AS int) AS passenger_count \n,CAST(trip_distance AS decimal(7,2)) AS trip_distance \n,CAST(RatecodeID AS int) AS RatecodeID\n,CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\n,CAST(PULocationID AS int) AS PULocationID\n,CAST(DOLocationID AS int) AS DOLocationID\n,CAST(NULL AS int) AS ZoneKey\n,CAST(payment_type AS int) AS payment_type\n,CAST(fare_amount AS decimal(9,2)) AS fare_amount\n,CAST(extra AS decimal(7,2)) AS extra\n,CAST(mta_tax AS decimal(7,2)) AS mta_tax\n,CAST(tip_amount AS decimal(7,2)) AS tip_amount\n,CAST(tolls_amount AS decimal(7,2)) AS tolls_amount\n,CAST(improvement_surcharge AS decimal(7,2)) AS improvement_surcharge\n,CAST(total_amount AS decimal(9,2)) AS total_amount\n,SUBSTRING(CAST(tpep_pickup_datetime AS varchar(16)),1,7) AS YYYYMM\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/*_2020-*.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO\n\nDROP VIEW IF EXISTS stage.taxi_zone;\nGO\n\nCREATE VIEW stage.taxi_zone\nAS \nSELECT\nCAST(LocationID AS int) AS LocationID\n,CAST(Borough AS varchar(64)) AS Borough\n,CAST(Zone AS varchar(64)) AS Zone\n,CAST(service_zone AS varchar(64)) AS ServiceZone\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/lookup-data/taxi_zone_lookup.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc-taxi",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [VendorID]\n,[tpep_pickup_datetime]\n,[tpep_dropoff_datetime]\n,[passenger_count]\n,[trip_distance]\n,[RatecodeID]\n,[store_and_fwd_flag]\n,[PULocationID]\n,[DOLocationID]\n,[ZoneKey]\n,[payment_type]\n,[fare_amount]\n,[extra]\n,[mta_tax]\n,[tip_amount]\n,[tolls_amount]\n,[improvement_surcharge]\n,[total_amount]\n,[YYYYMM]\n FROM [stage].[taxi_trip_2017]",
 					"metadata": {
 						"language": "sql"
 					},
@@ -1928,10 +2384,8 @@
 						"sparkVersion": "3.1",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
-					},
-					"sessionKeepAliveTimeout": 30
+						"memory": 28
+					}
 				},
 				"cells": [
 					{
@@ -2031,7 +2485,6 @@
 									"deleting": false
 								}
 							},
-							"microsoft": {},
 							"collapsed": true
 						},
 						"source": [
@@ -2076,7 +2529,6 @@
 									"deleting": false
 								}
 							},
-							"microsoft": {},
 							"collapsed": true
 						},
 						"source": [
@@ -2175,7 +2627,6 @@
 									"deleting": false
 								}
 							},
-							"microsoft": {},
 							"collapsed": true
 						},
 						"source": [
@@ -2543,26 +2994,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/spoexxbkqfmujmvmpocws1p1')]",
-			"type": "Microsoft.Synapse/workspaces/sqlPools",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"collation": "SQL_Latin1_General_CP1_CI_AS",
-				"maxSizeBytes": 263882790666240,
-				"restorePointInTime": "0001-01-01T00:00:00",
-				"annotations": []
-			},
-			"dependsOn": [],
-			"location": "westus2"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/default')]",
-			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/Dive into Delta Lake Workshop - Update')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
@@ -2609,10 +3040,8 @@
 						"sparkVersion": "3.1",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
-					},
-					"sessionKeepAliveTimeout": 30
+						"memory": 28
+					}
 				},
 				"cells": [
 					{
@@ -2991,42 +3420,23 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/01 - Create stage views')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"name": "[concat(parameters('workspaceName'), '/spoexxbkqfmujmvmpocws1p1')]",
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"folder": {
-					"name": "Dive into Delta Lake"
-				},
-				"content": {
-					"query": "DROP SCHEMA stage;\n\nCREATE SCHEMA stage;\n\nDROP VIEW IF EXISTS stage.taxi_trip_2017;\nGO\n\nCREATE VIEW stage.taxi_trip_2017\nAS \nSELECT\nCAST(VendorID AS int) AS VendorID\n,CAST(tpep_pickup_datetime AS SMALLDATETIME) AS tpep_pickup_datetime\n,CAST(tpep_dropoff_datetime AS SMALLDATETIME) AS tpep_dropoff_datetime\n,CAST(passenger_count AS int) AS passenger_count \n,CAST(trip_distance AS decimal(7,2)) AS trip_distance \n,CAST(RatecodeID AS int) AS RatecodeID\n,CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\n,CAST(PULocationID AS int) AS PULocationID\n,CAST(DOLocationID AS int) AS DOLocationID\n,CAST(NULL AS int) AS ZoneKey\n,CAST(payment_type AS int) AS payment_type\n,CAST(fare_amount AS decimal(7,2)) AS fare_amount\n,CAST(extra AS decimal(5,2)) AS extra\n,CAST(mta_tax AS decimal(5,2)) AS mta_tax\n,CAST(tip_amount AS decimal(5,2)) AS tip_amount\n,CAST(tolls_amount AS decimal(5,2)) AS tolls_amount\n,CAST(improvement_surcharge AS decimal(5,2)) AS improvement_surcharge\n,CAST(total_amount AS decimal(7,2)) AS total_amount\n,SUBSTRING(CAST(tpep_pickup_datetime AS varchar(16)),1,7) AS YYYYMM\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/*_2017-*.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO\n\nDROP VIEW IF EXISTS stage.taxi_trip_2018;\nGO\n\nCREATE VIEW stage.taxi_trip_2018\nAS \nSELECT\nCAST(VendorID AS int) AS VendorID\n,CAST(tpep_pickup_datetime AS SMALLDATETIME) AS tpep_pickup_datetime\n,CAST(tpep_dropoff_datetime AS SMALLDATETIME) AS tpep_dropoff_datetime\n,CAST(passenger_count AS int) AS passenger_count \n,CAST(trip_distance AS decimal(7,2)) AS trip_distance \n,CAST(RatecodeID AS int) AS RatecodeID\n,CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\n,CAST(PULocationID AS int) AS PULocationID\n,CAST(DOLocationID AS int) AS DOLocationID\n,CAST(NULL AS int) AS ZoneKey\n,CAST(payment_type AS int) AS payment_type\n,CAST(fare_amount AS decimal(7,2)) AS fare_amount\n,CAST(extra AS decimal(5,2)) AS extra\n,CAST(mta_tax AS decimal(5,2)) AS mta_tax\n,CAST(tip_amount AS decimal(5,2)) AS tip_amount\n,CAST(tolls_amount AS decimal(5,2)) AS tolls_amount\n,CAST(improvement_surcharge AS decimal(5,2)) AS improvement_surcharge\n,CAST(total_amount AS decimal(7,2)) AS total_amount\n,SUBSTRING(CAST(tpep_pickup_datetime AS varchar(16)),1,7) AS YYYYMM\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/*_2018-*.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO\n\nDROP VIEW IF EXISTS stage.taxi_trip_2019;\nGO\n\nCREATE VIEW stage.taxi_trip_2019\nAS \nSELECT\nCAST(VendorID AS int) AS VendorID\n,CAST(tpep_pickup_datetime AS SMALLDATETIME) AS tpep_pickup_datetime\n,CAST(tpep_dropoff_datetime AS SMALLDATETIME) AS tpep_dropoff_datetime\n,CAST(passenger_count AS int) AS passenger_count \n,CAST(trip_distance AS decimal(7,2)) AS trip_distance \n,CAST(RatecodeID AS int) AS RatecodeID\n,CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\n,CAST(PULocationID AS int) AS PULocationID\n,CAST(DOLocationID AS int) AS DOLocationID\n,CAST(NULL AS int) AS ZoneKey\n,CAST(payment_type AS int) AS payment_type\n,CAST(fare_amount AS decimal(7,2)) AS fare_amount\n,CAST(extra AS decimal(5,2)) AS extra\n,CAST(mta_tax AS decimal(5,2)) AS mta_tax\n,CAST(tip_amount AS decimal(5,2)) AS tip_amount\n,CAST(tolls_amount AS decimal(5,2)) AS tolls_amount\n,CAST(improvement_surcharge AS decimal(5,2)) AS improvement_surcharge\n,CAST(total_amount AS decimal(7,2)) AS total_amount\n,SUBSTRING(CAST(tpep_pickup_datetime AS varchar(16)),1,7) AS YYYYMM\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/*_2019-*.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO\n\nDROP VIEW IF EXISTS stage.taxi_trip_2020;\nGO\n\nCREATE VIEW stage.taxi_trip_2020\nAS \nSELECT\nCAST(VendorID AS int) AS VendorID\n,CAST(tpep_pickup_datetime AS SMALLDATETIME) AS tpep_pickup_datetime\n,CAST(tpep_dropoff_datetime AS SMALLDATETIME) AS tpep_dropoff_datetime\n,CAST(passenger_count AS int) AS passenger_count \n,CAST(trip_distance AS decimal(7,2)) AS trip_distance \n,CAST(RatecodeID AS int) AS RatecodeID\n,CAST(store_and_fwd_flag AS char(1)) AS store_and_fwd_flag\n,CAST(PULocationID AS int) AS PULocationID\n,CAST(DOLocationID AS int) AS DOLocationID\n,CAST(NULL AS int) AS ZoneKey\n,CAST(payment_type AS int) AS payment_type\n,CAST(fare_amount AS decimal(7,2)) AS fare_amount\n,CAST(extra AS decimal(5,2)) AS extra\n,CAST(mta_tax AS decimal(5,2)) AS mta_tax\n,CAST(tip_amount AS decimal(5,2)) AS tip_amount\n,CAST(tolls_amount AS decimal(5,2)) AS tolls_amount\n,CAST(improvement_surcharge AS decimal(5,2)) AS improvement_surcharge\n,CAST(total_amount AS decimal(7,2)) AS total_amount\n,SUBSTRING(CAST(tpep_pickup_datetime AS varchar(16)),1,7) AS YYYYMM\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/trip-data/yellow/*_2020-*.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO\n\nDROP VIEW IF EXISTS stage.taxi_zone;\nGO\n\nCREATE VIEW stage.taxi_zone\nAS \nSELECT\nCAST(LocationID AS int) AS LocationID\n,CAST(Borough AS varchar(64)) AS Borough\n,CAST(Zone AS varchar(64)) AS Zone\n,CAST(service_zone AS varchar(64)) AS ServiceZone\nFROM \n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/raw/nyc-tlc/lookup-data/taxi_zone_lookup.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION='2.0',\n        HEADER_ROW = TRUE\n) raw_data;\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "nyc-taxi",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Pipeline 1')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"folder": {
-					"name": "Dive into Delta Lake"
-				},
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"maxSizeBytes": 263882790666240,
+				"restorePointInTime": "0001-01-01T00:00:00",
 				"annotations": []
 			},
+			"dependsOn": [],
+			"location": "westus2"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/default')]",
+			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {},
 			"dependsOn": []
 		}
 	]
