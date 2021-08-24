@@ -358,8 +358,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/df_delta_lake_update')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+				"[concat(variables('workspaceId'), '/dataflows/df_delta_lake_update')]"
 			]
 		},
 		{
@@ -1982,12 +1981,38 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
+			"name": "[concat(parameters('workspaceName'), '/03 - Create Report Views')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "Dive into Delta Lake"
+				},
 				"content": {
-					"query": "SELECT TOP (100) [VendorID]\n,[tpep_pickup_datetime]\n,[tpep_dropoff_datetime]\n,[passenger_count]\n,[trip_distance]\n,[RatecodeID]\n,[store_and_fwd_flag]\n,[PULocationID]\n,[DOLocationID]\n,[ZoneKey]\n,[payment_type]\n,[fare_amount]\n,[extra]\n,[mta_tax]\n,[tip_amount]\n,[tolls_amount]\n,[improvement_surcharge]\n,[total_amount]\n,[YYYYMM]\n FROM [stage].[taxi_trip_2017]",
+					"query": "/*\nDROP SCHEMA report;\n\nCREATE SCHEMA report;\n*/\n\nDROP VIEW IF EXISTS report.TripsByYYYYMM_databricks;\nGO\n\nCREATE VIEW report.TripsByYYYYMM_databricks\nAS\nSELECT \n    YYYYMM\n    ,COUNT_BIG(*) AS Trips\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/delta/databricks/nyc-tlc/taxi_trip',\n        FORMAT='DELTA'\n    ) AS [result]\nWHERE \n    YYYYMM LIKE '2017-%' OR YYYYMM LIKE '2018-%' \nGROUP BY \nYYYYMM\nGO\n\nDROP VIEW IF EXISTS report.TripsByYYYYMM_synapse_spark;\nGO\n\nCREATE VIEW report.TripsByYYYYMM_synapse_spark\nAS\nSELECT \n    YYYYMM\n    ,COUNT_BIG(*) AS Trips\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/delta/synapse_spark/nyc-tlc/taxi_trip',\n        FORMAT='DELTA'\n    ) AS [result]\nWHERE \n    YYYYMM LIKE '2017-%' OR YYYYMM LIKE '2018-%' \nGROUP BY \nYYYYMM\nGO\n\nDROP VIEW IF EXISTS report.TripsByYYYYMM_synapse_df;\nGO\n\nCREATE VIEW report.TripsByYYYYMM_synapse_df\nAS\nSELECT \n    YYYYMM\n    ,COUNT_BIG(*) AS Trips\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/delta/synapse_dataflow/nyc-tlc/taxi_trip',\n        FORMAT='DELTA'\n    ) AS [result]\nWHERE \n    YYYYMM LIKE '2017-%' OR YYYYMM LIKE '2018-%' \nGROUP BY \nYYYYMM\nGO\n\nDROP VIEW IF EXISTS report.TripsByYYYYMM;\nGO\n\nCREATE VIEW report.TripsByYYYYMM\nAS\nSELECT 'databricks' AS Platform, YYYYMM, Trips FROM report.TripsByYYYYMM_databricks\nUNION ALL\nSELECT 'synapse_spark' AS Platform, YYYYMM, Trips FROM report.TripsByYYYYMM_synapse_spark\nUNION ALL\nSELECT 'synapse_df' AS Platform, YYYYMM, Trips FROM report.TripsByYYYYMM_synapse_df;\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc-taxi",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/04 - Compare Delta Tables')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Dive into Delta Lake"
+				},
+				"content": {
+					"query": "SELECT \n[Platform]\n,[YYYYMM]\n,[Trips]\n FROM \n [report].[TripsByYYYYMM]\n WHERE\n YYYYMM > '2018-05' AND YYYYMM < '2018-12'\nORDER BY\n2,1",
 					"metadata": {
 						"language": "sql"
 					},
