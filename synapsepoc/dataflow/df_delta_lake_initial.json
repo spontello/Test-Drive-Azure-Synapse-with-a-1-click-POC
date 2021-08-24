@@ -29,7 +29,7 @@
 				},
 				{
 					"linkedService": {
-						"referenceName": "ls_datalake",
+						"referenceName": "ls_datalake_df",
 						"type": "LinkedServiceReference"
 					},
 					"name": "TaxiZone"
