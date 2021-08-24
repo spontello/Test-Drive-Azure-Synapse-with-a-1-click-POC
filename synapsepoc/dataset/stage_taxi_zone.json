@@ -1,0 +1,16 @@
+{
+	"name": "stage_taxi_zone",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_synapse_serverless",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "stage",
+			"table": "taxi_zone"
+		}
+	}
+}

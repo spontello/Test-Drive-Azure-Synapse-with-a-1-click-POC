@@ -10,15 +10,49 @@
 						"type": "DatasetReference"
 					},
 					"name": "StageTaxiTrip"
+				},
+				{
+					"dataset": {
+						"referenceName": "stage_taxi_zone",
+						"type": "DatasetReference"
+					},
+					"name": "StageTaxiZone"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "ls_datalake",
+						"type": "LinkedServiceReference"
+					},
+					"name": "TaxiTrip"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_datalake",
+						"type": "LinkedServiceReference"
+					},
+					"name": "TaxiZone"
+				}
+			],
 			"transformations": [
 				{
 					"name": "DerivedColumns"
+				},
+				{
+					"name": "SurrogateKey"
+				},
+				{
+					"name": "DerivedColumns1"
+				},
+				{
+					"name": "Join1"
+				},
+				{
+					"name": "Aggregate1"
 				}
 			],
-			"script": "source(output(\n\t\tVendorID as integer,\n\t\ttpep_pickup_datetime as timestamp,\n\t\ttpep_dropoff_datetime as timestamp,\n\t\tpassenger_count as integer,\n\t\ttrip_distance as decimal(7,2),\n\t\tRatecodeID as integer,\n\t\tstore_and_fwd_flag as string,\n\t\tPULocationID as integer,\n\t\tDOLocationID as integer,\n\t\tZoneKey as integer,\n\t\tpayment_type as integer,\n\t\tfare_amount as decimal(7,2),\n\t\textra as decimal(5,2),\n\t\tmta_tax as decimal(5,2),\n\t\ttip_amount as decimal(5,2),\n\t\ttolls_amount as decimal(5,2),\n\t\timprovement_surcharge as decimal(5,2),\n\t\ttotal_amount as decimal(7,2),\n\t\tYYYYMM as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiTrip\nStageTaxiTrip derive(ZoneKey = toInteger(null()),\n\t\tYYYYMM = toString(tpep_pickup_datetime,\"YYYY-MM\"),\n\tpartitionBy('key',\n\t\t0,\n\t\tYYYYMM\n\t)) ~> DerivedColumns"
+			"script": "source(output(\n\t\tVendorID as integer,\n\t\ttpep_pickup_datetime as timestamp,\n\t\ttpep_dropoff_datetime as timestamp,\n\t\tpassenger_count as integer,\n\t\ttrip_distance as decimal(7,2),\n\t\tRatecodeID as integer,\n\t\tstore_and_fwd_flag as string,\n\t\tPULocationID as integer,\n\t\tDOLocationID as integer,\n\t\tZoneKey as integer,\n\t\tpayment_type as integer,\n\t\tfare_amount as decimal(7,2),\n\t\textra as decimal(5,2),\n\t\tmta_tax as decimal(5,2),\n\t\ttip_amount as decimal(5,2),\n\t\ttolls_amount as decimal(5,2),\n\t\timprovement_surcharge as decimal(5,2),\n\t\ttotal_amount as decimal(7,2),\n\t\tYYYYMM as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiTrip\nsource(output(\n\t\tLocationID as integer,\n\t\tBorough as string,\n\t\tZone as string,\n\t\tServiceZone as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiZone\nStageTaxiTrip derive(ZoneKey = toInteger(null()),\n\t\tYYYYMM = toString(tpep_pickup_datetime,\"YYYY-MM\"),\n\tpartitionBy('key',\n\t\t0,\n\t\tYYYYMM\n\t)) ~> DerivedColumns\nStageTaxiZone keyGenerate(output(ZoneKey as long),\n\tstartAt: 1L) ~> SurrogateKey\nSurrogateKey derive(EffectiveDt = currentDate(),\n\t\tExpirationDt = toDate(null()),\n\t\tActiveFlag = 1) ~> DerivedColumns1\nDerivedColumns1, Aggregate1 join(LocationID == DOLocationID,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> Join1\nDerivedColumns aggregate(groupBy(DOLocationID),\n\tTripCount = count(),\n\t\tAverageDistance = avg(trip_distance),\n\t\tAverageFare = avg(fare_amount)) ~> Aggregate1\nDerivedColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_trip',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tVendorID,\n\t\ttpep_pickup_datetime,\n\t\ttpep_dropoff_datetime,\n\t\tpassenger_count,\n\t\ttrip_distance,\n\t\tRatecodeID,\n\t\tstore_and_fwd_flag,\n\t\tPULocationID,\n\t\tDOLocationID,\n\t\tZoneKey,\n\t\tpayment_type,\n\t\tfare_amount,\n\t\textra,\n\t\tmta_tax,\n\t\ttip_amount,\n\t\ttolls_amount,\n\t\timprovement_surcharge,\n\t\ttotal_amount,\n\t\tYYYYMM\n\t)) ~> TaxiTrip\nJoin1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_zone',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> TaxiZone"
 		}
 	}
 }
