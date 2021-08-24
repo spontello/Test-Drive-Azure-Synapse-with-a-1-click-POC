@@ -82,7 +82,7 @@
 				"source": [
 					"print(\"spark version: \",spark.version)"
 				],
-				"execution_count": 1
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -101,7 +101,7 @@
 				"source": [
 					"from pyspark.sql.functions import *"
 				],
-				"execution_count": 20
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -124,7 +124,7 @@
 					"%%sql\r\n",
 					"SELECT * FROM delta_lake_house.stage_taxi_zone LIMIT 5"
 				],
-				"execution_count": 50
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -147,7 +147,7 @@
 					"%%sql\r\n",
 					"DESCRIBE delta_lake_house.stage_taxi_trip_2018"
 				],
-				"execution_count": 37
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -191,7 +191,7 @@
 					",SUBSTR(tpep_pickup_datetime,1,7) AS YYYYMM\r\n",
 					"FROM delta_lake_house.stage_taxi_trip_2018"
 				],
-				"execution_count": 65
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -212,9 +212,9 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"DESCRIBE delta_lake_house.taxi_trip"
+					"SELECT * FROM delta_lake_house.taxi_trip WHERE YYYYMM > '2018-00' LIMIT 5"
 				],
-				"execution_count": 3
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -235,37 +235,37 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"SELECT * FROM delta_lake_house.taxi_trip WHERE YYYYMM > 201800 LIMIT 5"
-				],
-				"execution_count": 67
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "sparksql"
-					},
-					"collapsed": true
-				},
-				"source": [
-					"%%sql\r\n",
-					"UPDATE delta_lake_house.taxi_trip \r\n",
+					"UPDATE delta_lake_house.taxi_zone \r\n",
 					"SET \r\n",
 					"ExpirationDt = CAST(current_date() AS DATE)\r\n",
 					",ActiveFlag = 0\r\n",
 					"WHERE\r\n",
 					"ExpirationDt IS NULL"
 				],
-				"execution_count": null
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SELECT * FROM delta_lake_house.taxi_zone LIMIT 5"
+				],
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -310,7 +310,7 @@
 					"    FROM\r\n",
 					"    delta_lake_house.taxi_trip\r\n",
 					"    WHERE\r\n",
-					"    YYYYMM > 201800\r\n",
+					"    YYYYMM > '2018-00'\r\n",
 					"    GROUP BY\r\n",
 					"    CAST(DOLocationID AS int)\r\n",
 					"    ) tt\r\n",
@@ -318,7 +318,7 @@
 					"ORDER BY \r\n",
 					"CAST(tz.LocationID AS int)"
 				],
-				"execution_count": 55
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -339,9 +339,9 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"SELECT * FROM delta_lake_house.taxi_zone LIMIT 5"
+					"SELECT * FROM delta_lake_house.taxi_zone WHERE LocationID = 1 LIMIT 5"
 				],
-				"execution_count": 59
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -364,11 +364,13 @@
 					"%%sql\r\n",
 					"MERGE INTO delta_lake_house.taxi_trip \r\n",
 					"USING delta_lake_house.taxi_zone \r\n",
-					"ON delta_lake_house.taxi_trip.DOLocationID = delta_lake_house.taxi_zone.LocationID AND delta_lake_house.taxi_trip.YYYYMM > 201800\r\n",
+					"ON delta_lake_house.taxi_trip.DOLocationID = delta_lake_house.taxi_zone.LocationID \r\n",
+					"AND delta_lake_house.taxi_trip.ZoneKey IS NULL\r\n",
+					"AND delta_lake_house.taxi_trip.YYYYMM > '2018-00'\r\n",
 					"WHEN MATCHED THEN\r\n",
 					"  UPDATE SET delta_lake_house.taxi_trip.ZoneKey = delta_lake_house.taxi_zone.ZoneKey"
 				],
-				"execution_count": 78
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -404,7 +406,7 @@
 					",YYYYMM\r\n",
 					"LIMIT 5"
 				],
-				"execution_count": 4
+				"execution_count": 5
 			}
 		]
 	}
