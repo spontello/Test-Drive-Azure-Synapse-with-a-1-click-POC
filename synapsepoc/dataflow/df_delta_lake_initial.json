@@ -1,5 +1,5 @@
 {
-	"name": "Dataflow1",
+	"name": "df_delta_lake_initial",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
