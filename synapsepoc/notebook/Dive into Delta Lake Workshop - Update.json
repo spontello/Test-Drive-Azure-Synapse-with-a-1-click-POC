@@ -370,7 +370,7 @@
 					"WHEN MATCHED THEN\r\n",
 					"  UPDATE SET delta_lake_house.taxi_trip.ZoneKey = delta_lake_house.taxi_zone.ZoneKey"
 				],
-				"execution_count": 21
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -406,7 +406,7 @@
 					",YYYYMM\r\n",
 					"LIMIT 5"
 				],
-				"execution_count": 5
+				"execution_count": 23
 			}
 		]
 	}
