@@ -1,6 +1,9 @@
 {
 	"name": "df_delta_lake_initial",
 	"properties": {
+		"folder": {
+			"name": "Dive into Delta Lake"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
