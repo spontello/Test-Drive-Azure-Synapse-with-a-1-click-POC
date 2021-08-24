@@ -1,7 +1,0 @@
-{
-	"name": "mpe_synapse_serverless",
-	"properties": {
-		"privateLinkResourceId": "/subscriptions/305180cd-c5ab-4c0f-b752-c85bdcf5dc88/resourceGroups/rg-sponte-synapse-one-click/providers/Microsoft.Sql/servers/spoexxbkqfmujmvmpocws1",
-		"groupId": "sqlServer"
-	}
-}
