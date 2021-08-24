@@ -1,0 +1,9 @@
+{
+	"name": "Delta Lake - Initial Load",
+	"properties": {
+		"folder": {
+			"name": "Dive into Delta Lake"
+		},
+		"annotations": []
+	}
+}
