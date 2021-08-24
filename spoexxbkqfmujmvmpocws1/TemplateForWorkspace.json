@@ -288,8 +288,8 @@
 							},
 							"staging": {},
 							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
+								"coreCount": 32,
+								"computeType": "MemoryOptimized"
 							},
 							"traceLevel": "Fine"
 						}
@@ -305,7 +305,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/df_delta_lake_initial')]"
+				"[concat(variables('workspaceId'), '/dataflows/df_delta_lake_initial')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
@@ -341,8 +342,8 @@
 							},
 							"staging": {},
 							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
+								"coreCount": 32,
+								"computeType": "MemoryOptimized"
 							},
 							"traceLevel": "Fine"
 						}
@@ -358,7 +359,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/df_delta_lake_update')]"
+				"[concat(variables('workspaceId'), '/dataflows/df_delta_lake_update')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
