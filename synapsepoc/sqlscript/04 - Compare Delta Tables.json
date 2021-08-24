@@ -1,6 +1,9 @@
 {
-	"name": "Compare Delta Tables",
+	"name": "04 - Compare Delta Tables",
 	"properties": {
+		"folder": {
+			"name": "Dive into Delta Lake"
+		},
 		"content": {
 			"query": "SELECT \n[Platform]\n,[YYYYMM]\n,[Trips]\n FROM \n [report].[TripsByYYYYMM]\n WHERE\n YYYYMM > '2018-05' AND YYYYMM < '2018-12'\nORDER BY\n2,1",
 			"metadata": {
