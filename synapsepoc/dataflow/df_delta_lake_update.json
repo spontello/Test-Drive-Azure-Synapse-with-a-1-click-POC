@@ -1,0 +1,95 @@
+{
+	"name": "df_delta_lake_update",
+	"properties": {
+		"folder": {
+			"name": "Dive into Delta Lake"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "taxi_trip_2018",
+						"type": "DatasetReference"
+					},
+					"name": "StageTaxiTrip"
+				},
+				{
+					"dataset": {
+						"referenceName": "stage_taxi_zone",
+						"type": "DatasetReference"
+					},
+					"name": "StageTaxiZone"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_datalake_df",
+						"type": "LinkedServiceReference"
+					},
+					"name": "TaxiZoneSource"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "ls_datalake_df",
+						"type": "LinkedServiceReference"
+					},
+					"name": "TaxiTrip"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_datalake_df",
+						"type": "LinkedServiceReference"
+					},
+					"name": "TaxiZone"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumnsTrip"
+				},
+				{
+					"name": "SurrogateKey"
+				},
+				{
+					"name": "DerivedColumnsZone"
+				},
+				{
+					"name": "JoinLocationStats"
+				},
+				{
+					"name": "AggregateLocationStats"
+				},
+				{
+					"name": "JoinZoneLookup"
+				},
+				{
+					"name": "SelectZoneLookup"
+				},
+				{
+					"name": "SelectTripCols"
+				},
+				{
+					"name": "UpdateTaxiZone"
+				},
+				{
+					"name": "UpdateExistingZones"
+				},
+				{
+					"name": "MaxZoneKeyAgg"
+				},
+				{
+					"name": "Join1"
+				},
+				{
+					"name": "SelectZoneCols"
+				},
+				{
+					"name": "Union1"
+				}
+			],
+			"script": "source(output(\n\t\tVendorID as integer,\n\t\ttpep_pickup_datetime as timestamp,\n\t\ttpep_dropoff_datetime as timestamp,\n\t\tpassenger_count as integer,\n\t\ttrip_distance as decimal(7,2),\n\t\tRatecodeID as integer,\n\t\tstore_and_fwd_flag as string,\n\t\tPULocationID as integer,\n\t\tDOLocationID as integer,\n\t\tZoneKey as integer,\n\t\tpayment_type as integer,\n\t\tfare_amount as decimal(9,2),\n\t\textra as decimal(7,2),\n\t\tmta_tax as decimal(7,2),\n\t\ttip_amount as decimal(7,2),\n\t\ttolls_amount as decimal(7,2),\n\t\timprovement_surcharge as decimal(7,2),\n\t\ttotal_amount as decimal(9,2),\n\t\tYYYYMM as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiTrip\nsource(output(\n\t\tLocationID as integer,\n\t\tBorough as string,\n\t\tZone as string,\n\t\tServiceZone as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiZone\nsource(output(\n\t\tLocationID as integer,\n\t\tBorough as string,\n\t\tZone as string,\n\t\tServiceZone as string,\n\t\tZoneKey as long,\n\t\tEffectiveDt as date,\n\t\tExpirationDt as date,\n\t\tActiveFlag as integer,\n\t\tDOLocationID as integer,\n\t\tTripCount as long,\n\t\tAverageDistance as decimal(11,6),\n\t\tAverageFare as decimal(11,6)\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_zone') ~> TaxiZoneSource\nStageTaxiTrip derive(YYYYMM = toString(tpep_pickup_datetime,\"YYYY-MM\"),\n\tpartitionBy('key',\n\t\t0,\n\t\tYYYYMM\n\t)) ~> DerivedColumnsTrip\nStageTaxiZone keyGenerate(output(ZoneKey as long),\n\tstartAt: 1L) ~> SurrogateKey\nJoin1 derive(EffectiveDt = currentDate(),\n\t\tExpirationDt = toDate(null()),\n\t\tActiveFlag = 1,\n\t\tZoneKey = ZoneKey + MaxZoneKey) ~> DerivedColumnsZone\nDerivedColumnsZone, AggregateLocationStats join(LocationID == DOLocationID,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> JoinLocationStats\nDerivedColumnsTrip aggregate(groupBy(DOLocationID),\n\tTripCount = count(),\n\t\tAverageDistance = avg(trip_distance),\n\t\tAverageFare = avg(fare_amount)) ~> AggregateLocationStats\nDerivedColumnsTrip, SelectZoneLookup join(DOLocationID == LocationID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinZoneLookup\nDerivedColumnsZone select(mapColumn(\n\t\tLocationID,\n\t\tZoneKey\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectZoneLookup\nJoinZoneLookup select(mapColumn(\n\t\tVendorID,\n\t\ttpep_pickup_datetime,\n\t\ttpep_dropoff_datetime,\n\t\tpassenger_count,\n\t\ttrip_distance,\n\t\tRatecodeID,\n\t\tstore_and_fwd_flag,\n\t\tPULocationID,\n\t\tDOLocationID,\n\t\tpayment_type,\n\t\tfare_amount,\n\t\textra,\n\t\tmta_tax,\n\t\ttip_amount,\n\t\ttolls_amount,\n\t\timprovement_surcharge,\n\t\ttotal_amount,\n\t\tYYYYMM,\n\t\tZoneKey = SelectZoneLookup@ZoneKey\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectTripCols\nTaxiZoneSource derive(ActiveFlag = 0,\n\t\tExpirationDt = currentDate()) ~> UpdateTaxiZone\nUpdateTaxiZone alterRow(updateIf(1==1)) ~> UpdateExistingZones\nTaxiZoneSource aggregate(MaxZoneKey = max(ZoneKey)) ~> MaxZoneKeyAgg\nSurrogateKey, MaxZoneKeyAgg join(true(),\n\tjoinType:'cross',\n\tbroadcast: 'auto')~> Join1\nJoinLocationStats select(mapColumn(\n\t\tLocationID,\n\t\tBorough,\n\t\tZone,\n\t\tServiceZone,\n\t\tZoneKey,\n\t\tEffectiveDt,\n\t\tExpirationDt,\n\t\tActiveFlag,\n\t\tDOLocationID,\n\t\tTripCount,\n\t\tAverageDistance,\n\t\tAverageFare\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectZoneCols\nSelectZoneCols, UpdateExistingZones union(byName: true)~> Union1\nSelectTripCols sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_trip',\n\toverwrite:true,\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tVendorID,\n\t\ttpep_pickup_datetime,\n\t\ttpep_dropoff_datetime,\n\t\tpassenger_count,\n\t\ttrip_distance,\n\t\tRatecodeID,\n\t\tstore_and_fwd_flag,\n\t\tPULocationID,\n\t\tDOLocationID,\n\t\tZoneKey,\n\t\tpayment_type,\n\t\tfare_amount,\n\t\textra,\n\t\tmta_tax,\n\t\ttip_amount,\n\t\ttolls_amount,\n\t\timprovement_surcharge,\n\t\ttotal_amount,\n\t\tYYYYMM\n\t)) ~> TaxiTrip\nUnion1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'delta',\n\tfolderPath: 'synapse_dataflow/nyc-tlc/taxi_zone',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['ZoneKey'],\n\tumask: 0022,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> TaxiZone"
+		}
+	}
+}
