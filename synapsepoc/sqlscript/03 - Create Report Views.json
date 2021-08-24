@@ -1,11 +1,11 @@
 {
-	"name": "03 - Explore Data 1",
+	"name": "03 - Create Report Views",
 	"properties": {
 		"folder": {
 			"name": "Dive into Delta Lake"
 		},
 		"content": {
-			"query": "SELECT\n    YYYYMM\n    ,COUNT_BIG(*) AS TotalRows\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/delta/databricks/nyc-tlc/taxi_trip',\n        FORMAT='DELTA'\n    ) AS [result]\nWHERE \n    YYYYMM LIKE '2017-%'\nGROUP BY \nYYYYMM\nORDER BY \nYYYYMM",
+			"query": "/*\nDROP SCHEMA report;\n\nCREATE SCHEMA report;\n*/\n\nDROP VIEW IF EXISTS report.TripsByYYYYMM_databricks;\nGO\n\nCREATE VIEW report.TripsByYYYYMM_databricks\nAS\nSELECT \n    YYYYMM\n    ,COUNT_BIG(*) AS Trips\nFROM\n    OPENROWSET(\n        BULK 'https://spoexxbkqfmujmvmpoc.dfs.core.windows.net/delta/databricks/nyc-tlc/taxi_trip',\n        FORMAT='DELTA'\n    ) AS [result]\nWHERE \n    YYYYMM LIKE '2017-%' OR YYYYMM LIKE '2018-%' \nGROUP BY \nYYYYMM\nGO\n\n",
 			"metadata": {
 				"language": "sql"
 			},
