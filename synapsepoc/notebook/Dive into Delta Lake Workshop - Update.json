@@ -366,7 +366,6 @@
 					"USING delta_lake_house.taxi_zone \r\n",
 					"ON delta_lake_house.taxi_trip.DOLocationID = delta_lake_house.taxi_zone.LocationID \r\n",
 					"AND delta_lake_house.taxi_zone.ActiveFlag = 1\r\n",
-					"AND delta_lake_house.taxi_trip.ZoneKey IS NULL\r\n",
 					"AND delta_lake_house.taxi_trip.YYYYMM > '2018-00'\r\n",
 					"WHEN MATCHED THEN\r\n",
 					"  UPDATE SET delta_lake_house.taxi_trip.ZoneKey = delta_lake_house.taxi_zone.ZoneKey"
