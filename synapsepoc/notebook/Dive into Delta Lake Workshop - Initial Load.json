@@ -82,7 +82,7 @@
 				"source": [
 					"print(\"spark version: \",spark.version)"
 				],
-				"execution_count": 1
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -626,7 +626,26 @@
 					"%%sql\r\n",
 					"SELECT * FROM delta_lake_house.taxi_trip LIMIT 5"
 				],
-				"execution_count": 100
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
 			}
 		]
 	}
