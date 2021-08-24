@@ -1,0 +1,16 @@
+{
+	"name": "taxi_trip_2017",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_synapse_serverless",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "stage",
+			"table": "taxi_trip_2017"
+		}
+	}
+}

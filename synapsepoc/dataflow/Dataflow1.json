@@ -1,0 +1,24 @@
+{
+	"name": "Dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "taxi_trip_2017",
+						"type": "DatasetReference"
+					},
+					"name": "StageTaxiTrip"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "DerivedColumns"
+				}
+			],
+			"script": "source(output(\n\t\tVendorID as integer,\n\t\ttpep_pickup_datetime as timestamp,\n\t\ttpep_dropoff_datetime as timestamp,\n\t\tpassenger_count as integer,\n\t\ttrip_distance as decimal(7,2),\n\t\tRatecodeID as integer,\n\t\tstore_and_fwd_flag as string,\n\t\tPULocationID as integer,\n\t\tDOLocationID as integer,\n\t\tZoneKey as integer,\n\t\tpayment_type as integer,\n\t\tfare_amount as decimal(7,2),\n\t\textra as decimal(5,2),\n\t\tmta_tax as decimal(5,2),\n\t\ttip_amount as decimal(5,2),\n\t\ttolls_amount as decimal(5,2),\n\t\timprovement_surcharge as decimal(5,2),\n\t\ttotal_amount as decimal(7,2),\n\t\tYYYYMM as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> StageTaxiTrip\nStageTaxiTrip derive(ZoneKey = toInteger(null()),\n\t\tYYYYMM = toString(tpep_pickup_datetime,\"YYYY-MM\"),\n\tpartitionBy('key',\n\t\t0,\n\t\tYYYYMM\n\t)) ~> DerivedColumns"
+		}
+	}
+}
